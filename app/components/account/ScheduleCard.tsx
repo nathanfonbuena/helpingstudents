@@ -1,9 +1,9 @@
 import Link from "next/link";
 import ScheduleModalTrigger from "@/app/components/ScheduleModalTrigger";
-import UploadMaterialModalTrigger from "@/app/components/UploadMaterialModalTrigger";
 import SaveCourseButton from "@/app/components/SaveCourseButton";
 import RemoveScheduleButton from "@/app/components/RemoveScheduleButton";
 import ScheduleImportModalTrigger from "@/app/components/ScheduleImportModalTrigger";
+import EditScheduleModalTrigger from "@/app/components/EditScheduleModalTrigger";
 
 interface ScheduleEntryItem {
   id: string;
@@ -13,29 +13,25 @@ interface ScheduleEntryItem {
     id: string;
     name: string;
     courseNumber: string;
+    professorId: string | null;
     professorName: string | null;
+    createdById: string | null;
+    schoolId: string;
   };
-}
-
-interface CourseOption {
-  id: string;
-  name: string;
-  courseNumber: string;
-  professorName: string | null;
 }
 
 interface ScheduleCardProps {
   entries: ScheduleEntryItem[];
   savedCourseIds: Set<string>;
   schoolId: string | null;
-  scheduleCourses: CourseOption[];
+  currentUserId: string;
 }
 
 export default function ScheduleCard({
   entries,
   savedCourseIds,
   schoolId,
-  scheduleCourses
+  currentUserId
 }: ScheduleCardProps) {
   return (
     <div className="account-card">
@@ -51,38 +47,50 @@ export default function ScheduleCard({
         </ul>
       ) : (
         <div className="schedule-list">
-          {entries.map((entry) => (
-            <div key={entry.id} className="schedule-item">
-              <div>
-                <strong>
-                  {entry.course.courseNumber} · {entry.course.name}
-                </strong>
-                <span>
-                  {entry.course.professorName ?? "TBA"}
-                  {entry.term ? ` · ${entry.term}` : ""}
-                  {entry.meetingTimes ? ` · ${entry.meetingTimes}` : ""}
-                </span>
+          {entries.map((entry) => {
+            const canEdit = entry.course.createdById === currentUserId;
+
+            return (
+              <div key={entry.id} className="schedule-item">
+                <div>
+                  <strong>
+                    {entry.course.courseNumber} · {entry.course.name}
+                  </strong>
+                  <span>
+                    {entry.course.professorName ?? "TBA"}
+                    {entry.term ? ` · ${entry.term}` : ""}
+                    {entry.meetingTimes ? ` · ${entry.meetingTimes}` : ""}
+                  </span>
+                </div>
+                <div className="schedule-actions">
+                  <Link
+                    className="ghost-button button--sm"
+                    href={`/search?q=${encodeURIComponent(entry.course.courseNumber)}`}
+                  >
+                    View course
+                  </Link>
+                  {canEdit && (
+                    <EditScheduleModalTrigger
+                      courseId={entry.course.id}
+                      courseName={entry.course.name}
+                      courseNumber={entry.course.courseNumber}
+                      currentProfessorId={entry.course.professorId}
+                      currentProfessorName={entry.course.professorName}
+                      schoolId={entry.course.schoolId}
+                      entryId={entry.id}
+                      term={entry.term}
+                      meetingTimes={entry.meetingTimes}
+                    />
+                  )}
+                  <SaveCourseButton
+                    courseId={entry.course.id}
+                    initialSaved={savedCourseIds.has(entry.course.id)}
+                  />
+                  <RemoveScheduleButton entryId={entry.id} />
+                </div>
               </div>
-              <div className="schedule-actions">
-                <Link
-                  className="ghost-button button--sm"
-                  href={`/search?q=${encodeURIComponent(entry.course.courseNumber)}`}
-                >
-                  View course
-                </Link>
-                <UploadMaterialModalTrigger
-                  label="Upload"
-                  scheduleCourses={scheduleCourses}
-                  variant="ghost"
-                />
-                <SaveCourseButton
-                  courseId={entry.course.id}
-                  initialSaved={savedCourseIds.has(entry.course.id)}
-                />
-                <RemoveScheduleButton entryId={entry.id} />
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
       <div className="card-actions">

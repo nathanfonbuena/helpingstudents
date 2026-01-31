@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useToast } from "@/app/components/ToastProvider";
+import SchoolAutocomplete from "@/app/components/SchoolAutocomplete";
 
 interface AccountFormProps {
   initialName: string;
@@ -18,6 +19,10 @@ export default function AccountForm({
   initialYear,
   schools
 }: AccountFormProps) {
+  // Find the initial school name from the schools list
+  const initialSchool = schools.find(s => s.id === initialSchoolId);
+  const initialSchoolName = initialSchool?.name ?? "";
+
   const [name, setName] = useState(initialName);
   const [schoolId, setSchoolId] = useState(initialSchoolId);
   const [major, setMajor] = useState(initialMajor);
@@ -26,6 +31,10 @@ export default function AccountForm({
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState(false);
   const toast = useToast();
+
+  const handleSchoolChange = (newSchoolId: string, _schoolName: string) => {
+    setSchoolId(newSchoolId);
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -75,18 +84,13 @@ export default function AccountForm({
       </label>
       <label>
         School
-        <select
+        <SchoolAutocomplete
           value={schoolId}
-          onChange={(event) => setSchoolId(event.target.value)}
+          onChange={handleSchoolChange}
+          initialSchoolName={initialSchoolName}
+          placeholder="Start typing to search schools..."
           disabled={!editing}
-        >
-          <option value="">Select a school</option>
-          {schools.map((school) => (
-            <option key={school.id} value={school.id}>
-              {school.name}
-            </option>
-          ))}
-        </select>
+        />
       </label>
       <label>
         Major

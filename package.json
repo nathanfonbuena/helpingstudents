@@ -12,7 +12,10 @@
     "test:e2e": "playwright test",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "import:schools": "npx ts-node scripts/import/schools/index.ts",
+    "import:courses": "npx ts-node scripts/import/courses/index.ts",
+    "import:courses:school": "npx ts-node scripts/import/courses/index.ts --school"
   },
   "dependencies": {
     "@auth/prisma-adapter": "2.5.3",
@@ -37,7 +40,8 @@
     "jest-environment-jsdom": "^30.2.0",
     "prisma": "5.19.1",
     "ts-jest": "^29.4.6",
-    "typescript": "5.5.4"
+    "typescript": "5.5.4",
+    "whatwg-fetch": "^3.6.20"
   },
   "prisma": {
     "seed": "node prisma/seed.js"

@@ -31,17 +31,26 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       query
         ? prisma.school.findMany({
             where: {
-              name: {
-                contains: query,
-                mode: "insensitive"
-              },
+              OR: [
+                { name: { contains: query, mode: "insensitive" } },
+                { nickname: { contains: query, mode: "insensitive" } }
+              ],
               ...(schoolId ? { id: schoolId } : {}),
               ...(departmentId
                 ? { departments: { some: { id: departmentId } } }
                 : {})
             },
+            select: {
+              id: true,
+              name: true,
+              nickname: true,
+              slug: true,
+              city: true,
+              state: true,
+              type: true
+            },
             take: 25,
-            orderBy: { name: "asc" }
+            orderBy: [{ enrollmentSize: "desc" }, { name: "asc" }]
           })
         : Promise.resolve([]),
       query
@@ -176,7 +185,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 key={school.id}
                 id={school.id}
                 name={school.name}
+                nickname={school.nickname}
                 slug={school.slug}
+                city={school.city}
+                state={school.state}
+                type={school.type}
               />
             ))}
           </ResultsSection>

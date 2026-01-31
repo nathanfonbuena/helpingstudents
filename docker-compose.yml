@@ -1,33 +1,35 @@
 services:
-  db:
+  classrack-db:
     image: postgres:16
+    container_name: classrack-db
     environment:
       POSTGRES_USER: classrack
       POSTGRES_PASSWORD: classrack
       POSTGRES_DB: classrack
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - classrack-pgdata:/var/lib/postgresql/data
 
-  web:
+  classrack-web:
     build: .
+    container_name: classrack-web
     ports:
-      - "3000:3000"
-      - "5555:5555"
+      - "3001:3000"
+      - "5556:5555"
     environment:
-      DATABASE_URL: postgresql://classrack:classrack@db:5432/classrack
-      AUTH_URL: http://localhost:3000
-      NEXTAUTH_URL: http://localhost:3000
-      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      DATABASE_URL: postgresql://classrack:classrack@classrack-db:5432/classrack
+      AUTH_URL: http://localhost:3001
+      NEXTAUTH_URL: http://localhost:3001
+      NEXT_PUBLIC_SITE_URL: http://localhost:3001
       AUTH_SECRET: ${AUTH_SECRET}
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
     volumes:
       - .:/app
       - /app/node_modules
     depends_on:
-      - db
+      - classrack-db
     command: sh -c "npx prisma studio --port 5555 --hostname 0.0.0.0 & npm run dev -- --hostname 0.0.0.0"
 
 volumes:
-  pgdata:
+  classrack-pgdata:

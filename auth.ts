@@ -4,10 +4,20 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "./lib/prisma";
 import { verifyPassword } from "./lib/password";
 import type { NextAuthConfig } from "next-auth";
+import type { UserRole } from "@prisma/client";
+
+// Session duration: 7 days in seconds
+const SESSION_MAX_AGE = 7 * 24 * 60 * 60; // 604800 seconds
 
 export const authConfig: NextAuthConfig = {
-  adapter: PrismaAdapter(prisma),
-  session: { strategy: "jwt" },
+  adapter: PrismaAdapter(prisma) as NextAuthConfig["adapter"],
+  session: {
+    strategy: "jwt",
+    maxAge: SESSION_MAX_AGE
+  },
+  jwt: {
+    maxAge: SESSION_MAX_AGE
+  },
   pages: {
     signIn: "/login",
     error: "/login"
@@ -48,7 +58,7 @@ export const authConfig: NextAuthConfig = {
     session({ session, token, user }) {
       if (session.user) {
         session.user.id = (token.id as string) ?? user?.id;
-        session.user.role = (token.role as string) ?? user?.role;
+        session.user.role = (token.role as UserRole) ?? user?.role;
       }
       return session;
     }

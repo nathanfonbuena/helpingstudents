@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/app/components/ToastProvider";
+import SchoolAutocomplete from "@/app/components/SchoolAutocomplete";
 
 interface AccountProfileModalProps {
   open: boolean;
@@ -23,6 +24,11 @@ export default function AccountProfileModal({
 }: AccountProfileModalProps) {
   const router = useRouter();
   const toast = useToast();
+
+  // Find the initial school name from the schools list
+  const initialSchool = schools.find(s => s.id === initialSchoolId);
+  const initialSchoolName = initialSchool?.name ?? "";
+
   const [schoolId, setSchoolId] = useState(initialSchoolId);
   const [major, setMajor] = useState(initialMajor);
   const [year, setYear] = useState(initialYear);
@@ -33,6 +39,10 @@ export default function AccountProfileModal({
 
   const handleClose = () => {
     if (!loading) onClose();
+  };
+
+  const handleSchoolChange = (newSchoolId: string, _schoolName: string) => {
+    setSchoolId(newSchoolId);
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -76,14 +86,12 @@ export default function AccountProfileModal({
         <form className="settings-form" onSubmit={handleSubmit}>
           <label>
             School
-            <select value={schoolId} onChange={(event) => setSchoolId(event.target.value)}>
-              <option value="">Select a school</option>
-              {schools.map((school) => (
-                <option key={school.id} value={school.id}>
-                  {school.name}
-                </option>
-              ))}
-            </select>
+            <SchoolAutocomplete
+              value={schoolId}
+              onChange={handleSchoolChange}
+              initialSchoolName={initialSchoolName}
+              placeholder="Start typing to search schools..."
+            />
           </label>
           <label>
             Major

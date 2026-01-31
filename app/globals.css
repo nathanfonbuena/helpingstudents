@@ -2256,3 +2256,680 @@ a {
     flex-direction: column;
   }
 }
+
+/* ========================================
+   School & Course Search Components
+   ======================================== */
+
+.school-search,
+.course-search {
+  position: relative;
+  width: 100%;
+}
+
+.search__suggestion-badge {
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.search__suggestion-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  color: var(--ink-500);
+}
+
+.search__suggestion-dept,
+.search__suggestion-prof,
+.search__suggestion-credits {
+  display: inline-flex;
+  align-items: center;
+}
+
+.search__suggestion-dept::after,
+.search__suggestion-prof::after {
+  content: "·";
+  margin-left: 8px;
+}
+
+.search__suggestion-credits::before {
+  content: "";
+}
+
+.search__suggestion-action {
+  font-size: 0.85rem;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.search__suggestion--selected {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.search__suggestion--selected .search__suggestion-badge--added {
+  background: var(--ink-500);
+  color: white;
+}
+
+.search__suggestion--empty {
+  cursor: default;
+  color: var(--ink-500);
+}
+
+.search__suggestion--add-new {
+  border-top: 1px solid var(--panel-border);
+  margin-top: 4px;
+  padding-top: 12px;
+}
+
+.search__suggestion--add-new:hover {
+  color: var(--accent);
+}
+
+/* Result Card Enhancements */
+.result-card--school {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.result-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.result-card__title {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--ink-900);
+}
+
+.result-card__nickname {
+  color: var(--ink-500);
+  font-weight: normal;
+}
+
+.result-card__badge {
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.result-card__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.result-card__location {
+  font-size: 0.85rem;
+  color: var(--ink-500);
+}
+
+.result-card__action {
+  font-size: 0.85rem;
+  color: var(--accent);
+}
+
+/* ========================================
+   Onboarding Page
+   ======================================== */
+
+.onboarding {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+}
+
+.onboarding__container {
+  max-width: 560px;
+  width: 100%;
+}
+
+.onboarding__progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 48px;
+}
+
+.onboarding__step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink-500);
+}
+
+.onboarding__step--active {
+  color: var(--accent);
+}
+
+.onboarding__step-number {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--panel-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.onboarding__step--active .onboarding__step-number {
+  background: var(--accent);
+  color: white;
+}
+
+.onboarding__step-label {
+  font-size: 0.9rem;
+}
+
+.onboarding__step-connector {
+  width: 48px;
+  height: 2px;
+  background: var(--panel-border);
+}
+
+.onboarding__panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: var(--shadow);
+}
+
+.onboarding__panel--complete {
+  text-align: center;
+}
+
+.onboarding__back {
+  border: none;
+  background: none;
+  color: var(--accent);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 16px;
+}
+
+.onboarding__back:hover {
+  text-decoration: underline;
+}
+
+.onboarding__school-info {
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.onboarding__school-name {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--ink-900);
+}
+
+.onboarding__school-meta {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+  color: var(--ink-500);
+}
+
+.onboarding__title {
+  margin: 0 0 8px;
+  font-size: 1.5rem;
+  color: var(--ink-900);
+}
+
+.onboarding__description {
+  margin: 0 0 24px;
+  color: var(--ink-500);
+}
+
+.onboarding__search {
+  margin-bottom: 24px;
+}
+
+.onboarding__hint {
+  font-size: 0.85rem;
+  color: var(--ink-500);
+  text-align: center;
+}
+
+.onboarding__hint p {
+  margin: 0;
+}
+
+.onboarding__selected {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--panel-border);
+}
+
+.onboarding__selected-title {
+  margin: 0 0 12px;
+  font-size: 0.95rem;
+  color: var(--ink-700);
+}
+
+.onboarding__course-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.onboarding__course-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--accent-soft);
+  border-radius: 10px;
+}
+
+.onboarding__course-info {
+  font-size: 0.9rem;
+  color: var(--ink-900);
+}
+
+.onboarding__course-remove {
+  border: none;
+  background: none;
+  font-size: 1.2rem;
+  color: var(--ink-500);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.onboarding__course-remove:hover {
+  color: var(--ink-900);
+}
+
+.onboarding__error {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: #fee2e2;
+  border-radius: 10px;
+  color: #991b1b;
+  font-size: 0.9rem;
+}
+
+.onboarding__actions {
+  margin-top: 24px;
+  display: grid;
+  gap: 12px;
+}
+
+.onboarding__submit {
+  border: none;
+  background: var(--accent);
+  color: white;
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.onboarding__submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.onboarding__submit:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.onboarding__skip {
+  border: 1px solid var(--panel-border);
+  background: transparent;
+  color: var(--ink-500);
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.onboarding__skip:hover {
+  border-color: var(--ink-500);
+}
+
+.onboarding__success-icon {
+  width: 64px;
+  height: 64px;
+  background: var(--accent);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin: 0 auto 24px;
+}
+
+@media (max-width: 600px) {
+  .onboarding__step-label {
+    display: none;
+  }
+
+  .onboarding__panel {
+    padding: 24px;
+  }
+}
+
+/* ========================================
+   School Autocomplete Component
+   ======================================== */
+
+.school-autocomplete {
+  position: relative;
+  width: 100%;
+}
+
+.school-autocomplete input {
+  width: 100%;
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  font-family: var(--font-serif), serif;
+  color: var(--ink-900);
+  background: #fff;
+}
+
+.school-autocomplete input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(15, 107, 72, 0.1);
+}
+
+.school-autocomplete-loading {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+  color: var(--ink-500);
+}
+
+.school-autocomplete-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(15, 27, 21, 0.12);
+  max-height: 280px;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.school-autocomplete-option {
+  padding: 10px 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-radius: 8px;
+  margin: 4px;
+  transition: background 0.15s ease;
+}
+
+.school-autocomplete-option:hover,
+.school-autocomplete-option.highlighted {
+  background: var(--accent-soft);
+}
+
+.school-autocomplete-option.selected {
+  background: var(--accent-soft);
+}
+
+.school-autocomplete-option .school-name {
+  font-size: 0.95rem;
+  color: var(--ink-900);
+}
+
+.school-autocomplete-option .school-nickname {
+  color: var(--ink-500);
+  font-weight: normal;
+}
+
+.school-autocomplete-option .school-location {
+  font-size: 0.8rem;
+  color: var(--ink-500);
+}
+
+.school-autocomplete-option.highlighted .school-name,
+.school-autocomplete-option:hover .school-name {
+  color: var(--accent);
+}
+
+.school-autocomplete-empty {
+  padding: 12px;
+  color: var(--ink-500);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.school-autocomplete input:disabled {
+  background: #f6f7f6;
+  color: var(--ink-500);
+  cursor: not-allowed;
+}
+
+/* ========================================
+   Error Page
+   ======================================== */
+
+.error-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.error-content {
+  text-align: center;
+  max-width: 400px;
+}
+
+.error-content h2 {
+  margin: 0 0 12px;
+  font-size: 1.5rem;
+  color: var(--ink-900);
+}
+
+.error-content p {
+  margin: 0 0 24px;
+  color: var(--ink-500);
+}
+
+/* ========================================
+   Course Autocomplete (Schedule Modal)
+   ======================================== */
+
+.course-search-field {
+  position: relative;
+}
+
+.course-autocomplete {
+  position: relative;
+}
+
+.course-autocomplete input {
+  width: 100%;
+}
+
+.course-autocomplete-loading {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+  color: var(--ink-500);
+}
+
+.search__suggestion--highlighted {
+  background: var(--accent-soft);
+}
+
+.search__suggestion--selected {
+  background: var(--accent-soft);
+  border-left: 3px solid var(--accent);
+}
+
+.selected-course-badge {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: var(--accent-soft);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: var(--accent);
+}
+
+.manual-entry-notice {
+  padding: 12px 14px;
+  background: #fff9e6;
+  border: 1px solid #f5e6b3;
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+
+.manual-entry-notice p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #8b6914;
+}
+
+.back-to-search-link {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 0;
+  background: none;
+  border: none;
+  font-size: 0.85rem;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.back-to-search-link:hover {
+  color: var(--accent-dark, #0a5238);
+}
+
+.add-course-link {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 0;
+  background: none;
+  border: none;
+  font-size: 0.85rem;
+  color: var(--ink-500);
+  cursor: pointer;
+  text-align: left;
+}
+
+.add-course-link:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.search__suggestion--action {
+  background: var(--accent-soft);
+  border-top: 1px solid var(--panel-border);
+}
+
+.search__suggestion--action:hover {
+  background: var(--accent);
+}
+
+.search__suggestion--action:hover .search__suggestion-title,
+.search__suggestion--action:hover .search__suggestion-subtitle {
+  color: white;
+}
+
+.search__suggestion--action .search__suggestion-title {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* ========================================
+   Professor Autocomplete (Edit Modal)
+   ======================================== */
+
+.professor-search-field {
+  position: relative;
+}
+
+.professor-autocomplete {
+  position: relative;
+}
+
+.professor-autocomplete input {
+  width: 100%;
+}
+
+.professor-autocomplete-loading {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+  color: var(--ink-500);
+}
+
+.selected-professor-badge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: var(--accent-soft);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: var(--accent);
+}
+
+.selected-professor-badge .clear-selection {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: var(--ink-500);
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.selected-professor-badge .clear-selection:hover {
+  color: var(--ink-900);
+}

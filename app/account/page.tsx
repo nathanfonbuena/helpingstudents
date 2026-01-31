@@ -78,7 +78,10 @@ export default async function AccountPage() {
               id: true,
               name: true,
               courseNumber: true,
-              professor: { select: { name: true } }
+              schoolId: true,
+              createdById: true,
+              professorId: true,
+              professor: { select: { id: true, name: true } }
             }
           }
         },
@@ -386,12 +389,15 @@ export default async function AccountPage() {
                   id: entry.course.id,
                   name: entry.course.name,
                   courseNumber: entry.course.courseNumber,
+                  schoolId: entry.course.schoolId,
+                  createdById: entry.course.createdById,
+                  professorId: entry.course.professorId,
                   professorName: entry.course.professor?.name ?? null
                 }
               }))}
               savedCourseIds={new Set(savedCourseIds)}
               schoolId={primarySchoolId}
-              scheduleCourses={scheduleCourses}
+              currentUserId={userId}
             />
 
             <ImpactCard

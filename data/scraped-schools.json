@@ -1,0 +1,56 @@
+{
+  "lastUpdated": "2026-01-31T07:08:03.346Z",
+  "schools": [
+    {
+      "unitId": "214777",
+      "schoolName": "Penn State",
+      "scrapedAt": "2026-01-31T06:54:18.386Z",
+      "coursesCount": 1336,
+      "success": true
+    },
+    {
+      "unitId": "228778",
+      "schoolName": "UT Austin",
+      "scrapedAt": "2026-01-31T06:54:32.520Z",
+      "coursesCount": 0,
+      "success": false,
+      "error": "No courses found"
+    },
+    {
+      "unitId": "110565",
+      "schoolName": "Cal Poly Pomona",
+      "scrapedAt": "2026-01-31T06:54:50.486Z",
+      "coursesCount": 1498,
+      "success": true
+    },
+    {
+      "unitId": "171100",
+      "schoolName": "Michigan State",
+      "scrapedAt": "2026-01-31T06:55:04.909Z",
+      "coursesCount": 0,
+      "success": false,
+      "error": "No courses found"
+    },
+    {
+      "unitId": "243780",
+      "schoolName": "Purdue",
+      "scrapedAt": "2026-01-31T06:55:22.865Z",
+      "coursesCount": 1500,
+      "success": true
+    },
+    {
+      "unitId": "228723",
+      "schoolName": "Texas A&M",
+      "scrapedAt": "2026-01-31T07:05:30.087Z",
+      "coursesCount": 915,
+      "success": true
+    },
+    {
+      "unitId": "137351",
+      "schoolName": "University of South Florida",
+      "scrapedAt": "2026-01-31T07:08:03.346Z",
+      "coursesCount": 100,
+      "success": true
+    }
+  ]
+}
