@@ -1,0 +1,4 @@
+[
+  { "id": "course-1", "courseNumber": "CS-101", "name": "Intro to CS" },
+  { "id": "course-2", "courseNumber": "MATH-201", "name": "Linear Algebra" }
+]

@@ -1,0 +1,4 @@
+[
+  { "id": "mat-1", "title": "Study Guide", "status": "APPROVED" },
+  { "id": "mat-2", "title": "Lecture Notes", "status": "PENDING" }
+]

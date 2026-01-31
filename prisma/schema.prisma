@@ -1,0 +1,452 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  STUDENT
+  PROFESSOR
+}
+
+enum ThemePreference {
+  LIGHT
+  DARK
+}
+
+enum ReviewVoteType {
+  UP
+  DOWN
+}
+
+enum MaterialStatus {
+  DRAFT
+  PENDING
+  APPROVED
+}
+
+model User {
+  id            String        @id @default(cuid())
+  email         String        @unique
+  name          String?
+  image         String?
+  emailVerified DateTime?
+  verified      Boolean       @default(false)
+  major         String?
+  year          String?
+  passwordHash  String?
+  theme         ThemePreference @default(LIGHT)
+  role          UserRole
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  schools       UserSchool[]
+  reviewsWritten Review[]      @relation("reviews_written")
+  reviewsReceived Review[]     @relation("reviews_received")
+  schoolReviews SchoolReview[]
+  courses       Course[]
+  tags          TagOnProfessor[]
+  departments   DepartmentOnProfessor[]
+  materials     Material[]   @relation("materials_professor")
+  materialsAuthored Material[] @relation("materials_authored")
+  following    UserFollow[]   @relation("user_following")
+  followers    UserFollow[]   @relation("user_followers")
+  scheduleEntries ScheduleEntry[]
+  professorProfileViews ProfessorProfileView[] @relation("professor_profile_views")
+  professorProfileViewsCreated ProfessorProfileView[] @relation("professor_profile_views_viewer")
+  reviewViewsCreated ReviewView[] @relation("review_views_viewer")
+  savedCourses SavedCourse[]
+  materialViews MaterialView[] @relation("material_views_viewer")
+  materialSaves MaterialSave[]
+  notifications Notification[]
+  accounts      Account[]
+  sessions      Session[]
+  responses     ReviewResponse[]
+  reviewVotes   ReviewVote[]
+  schoolReviewVotes SchoolReviewVote[]
+}
+
+model School {
+  id        String       @id @default(cuid())
+  name      String
+  slug      String       @unique
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  users     UserSchool[]
+  departments Department[]
+  courses   Course[]
+  reviews   SchoolReview[]
+}
+
+model UserSchool {
+  userId   String
+  schoolId String
+  role     UserRole
+  createdAt DateTime    @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  school School @relation(fields: [schoolId], references: [id])
+
+  @@id([userId, schoolId])
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  rating      Int
+  difficulty  Int
+  expertise   Int
+  enjoyability Int
+  clarity     Int
+  body        String
+  helpfulUp   Int      @default(0)
+  helpfulDown Int      @default(0)
+  isImport    Boolean  @default(false)
+  wouldTakeAgain Boolean?
+  forCredit   Boolean?
+  attendanceMandatory Boolean?
+  textbookRequired Boolean?
+  onlineClass Boolean?
+  grade       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  studentId   String
+  professorId String
+
+  student     User     @relation("reviews_written", fields: [studentId], references: [id])
+  professor   User     @relation("reviews_received", fields: [professorId], references: [id])
+  response    ReviewResponse?
+  votes       ReviewVote[]
+  views       ReviewView[]
+
+  @@index([professorId])
+  @@index([studentId])
+}
+
+model ReviewVote {
+  id        String         @id @default(cuid())
+  reviewId  String
+  userId    String
+  vote      ReviewVoteType
+  createdAt DateTime       @default(now())
+
+  review    Review @relation(fields: [reviewId], references: [id])
+  user      User   @relation(fields: [userId], references: [id])
+
+  @@unique([reviewId, userId])
+  @@index([userId])
+  @@index([reviewId])
+}
+
+model SchoolReview {
+  id          String   @id @default(cuid())
+  overall     Int
+  reputation  Int
+  opportunities Int
+  clubs       Int
+  safety      Int
+  location    Int
+  facilities  Int
+  happiness   Int
+  internet    Int
+  food        Int
+  social      Int
+  body        String
+  helpfulUp   Int      @default(0)
+  helpfulDown Int      @default(0)
+  isImport    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  studentId   String
+  schoolId    String
+
+  student     User     @relation(fields: [studentId], references: [id])
+  school      School   @relation(fields: [schoolId], references: [id])
+  votes       SchoolReviewVote[]
+
+  @@index([schoolId])
+  @@index([studentId])
+}
+
+model SchoolReviewVote {
+  id        String   @id @default(cuid())
+  reviewId  String
+  userId    String
+  vote      ReviewVoteType
+  createdAt DateTime @default(now())
+
+  review    SchoolReview @relation(fields: [reviewId], references: [id])
+  user      User         @relation(fields: [userId], references: [id])
+
+  @@unique([reviewId, userId])
+  @@index([userId])
+  @@index([reviewId])
+}
+
+model ReviewResponse {
+  id         String   @id @default(cuid())
+  body       String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  reviewId   String   @unique
+  professorId String
+
+  review     Review   @relation(fields: [reviewId], references: [id])
+  professor  User     @relation(fields: [professorId], references: [id])
+
+  @@index([professorId])
+}
+
+model Tag {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  professors TagOnProfessor[]
+}
+
+model TagOnProfessor {
+  professorId String
+  tagId       String
+  createdAt   DateTime @default(now())
+
+  professor   User @relation(fields: [professorId], references: [id])
+  tag         Tag  @relation(fields: [tagId], references: [id])
+
+  @@id([professorId, tagId])
+  @@index([tagId])
+}
+
+model Department {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String
+  schoolId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  school    School @relation(fields: [schoolId], references: [id])
+
+  professors DepartmentOnProfessor[]
+
+  @@unique([schoolId, slug])
+  @@index([schoolId])
+}
+
+model Course {
+  id          String   @id @default(cuid())
+  name        String
+  courseNumber String
+  schoolId    String
+  professorId String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  school      School @relation(fields: [schoolId], references: [id])
+  professor   User   @relation(fields: [professorId], references: [id])
+  scheduleEntries ScheduleEntry[]
+  materials   Material[]
+  savedCourses SavedCourse[]
+
+  @@index([schoolId])
+  @@index([professorId])
+}
+
+model ProfessorProfileView {
+  id           String   @id @default(cuid())
+  professorId  String
+  viewerId     String
+  viewedOn     DateTime
+  createdAt    DateTime @default(now())
+
+  professor    User     @relation("professor_profile_views", fields: [professorId], references: [id])
+  viewer       User     @relation("professor_profile_views_viewer", fields: [viewerId], references: [id])
+
+  @@unique([professorId, viewerId, viewedOn])
+  @@index([professorId])
+  @@index([viewerId])
+}
+
+model ReviewView {
+  id        String   @id @default(cuid())
+  reviewId  String
+  viewerId  String
+  viewedOn  DateTime
+  createdAt DateTime @default(now())
+
+  review    Review   @relation(fields: [reviewId], references: [id])
+  viewer    User     @relation("review_views_viewer", fields: [viewerId], references: [id])
+
+  @@unique([reviewId, viewerId, viewedOn])
+  @@index([reviewId])
+  @@index([viewerId])
+}
+
+model Material {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  status      MaterialStatus @default(PENDING)
+  term        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  professorId String
+  uploaderId  String
+  courseId    String?
+
+  professor   User     @relation("materials_professor", fields: [professorId], references: [id])
+  uploader    User     @relation("materials_authored", fields: [uploaderId], references: [id])
+  course      Course?  @relation(fields: [courseId], references: [id])
+  views       MaterialView[]
+  saves       MaterialSave[]
+
+  @@index([professorId])
+  @@index([uploaderId])
+  @@index([courseId])
+}
+
+model MaterialView {
+  id         String   @id @default(cuid())
+  materialId String
+  viewerId   String
+  viewedOn   DateTime
+  createdAt  DateTime @default(now())
+
+  material   Material @relation(fields: [materialId], references: [id])
+  viewer     User     @relation("material_views_viewer", fields: [viewerId], references: [id])
+
+  @@unique([materialId, viewerId, viewedOn])
+  @@index([materialId])
+  @@index([viewerId])
+}
+
+model MaterialSave {
+  id         String   @id @default(cuid())
+  materialId String
+  userId     String
+  createdAt  DateTime @default(now())
+
+  material   Material @relation(fields: [materialId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@unique([materialId, userId])
+  @@index([materialId])
+  @@index([userId])
+}
+
+model DepartmentOnProfessor {
+  departmentId String
+  professorId  String
+  createdAt    DateTime @default(now())
+
+  department Department @relation(fields: [departmentId], references: [id])
+  professor  User      @relation(fields: [professorId], references: [id])
+
+  @@id([departmentId, professorId])
+  @@index([professorId])
+}
+
+model UserFollow {
+  id           String   @id @default(cuid())
+  followerId   String
+  followingId  String
+  createdAt    DateTime @default(now())
+
+  follower     User     @relation("user_following", fields: [followerId], references: [id])
+  following    User     @relation("user_followers", fields: [followingId], references: [id])
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+model ScheduleEntry {
+  id          String   @id @default(cuid())
+  userId      String
+  courseId    String
+  term        String?
+  meetingTimes String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id])
+  course      Course   @relation(fields: [courseId], references: [id])
+
+  @@index([userId])
+  @@index([courseId])
+  @@unique([userId, courseId, term])
+}
+
+model SavedCourse {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  course    Course   @relation(fields: [courseId], references: [id])
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  message   String
+  readAt    DateTime?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?
+  access_token       String?
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}

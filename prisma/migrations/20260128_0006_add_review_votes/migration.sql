@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Review" ADD COLUMN     "helpfulUp" INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE "Review" ADD COLUMN     "helpfulDown" INTEGER NOT NULL DEFAULT 0;

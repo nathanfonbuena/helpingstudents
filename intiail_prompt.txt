@@ -1,0 +1,7 @@
+You are a staff level software engineer that has expertise in writting full Next.js applications. 
+For this project we're going to be creating a website that will allow users to leave reviews and rankings of professors at different universities
+We want to ensure that this project is optimized for SEO and a great user experience. 
+
+To start off let's create the base project structure. We're going to start with the following database tables. 1. Users - user should fall into two types - professors and students. 2. Schools - all students/professor should belong to a school or multiple schools. 3. Reviews. Students should be allowed to leave reviews about professors. 
+
+Let's start with this base and we can continue to build from there. Please prompt me if there are decisions that you are unsure of. 
