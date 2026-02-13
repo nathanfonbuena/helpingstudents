@@ -22,8 +22,11 @@
     "@prisma/client": "5.19.1",
     "next": "14.2.11",
     "next-auth": "5.0.0-beta.21",
+    "openai": "^6.19.0",
     "react": "18.3.1",
-    "react-dom": "18.3.1"
+    "react-dom": "18.3.1",
+    "resend": "^6.9.1",
+    "uploadthing": "^7.7.4"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.1",

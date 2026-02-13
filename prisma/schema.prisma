@@ -33,6 +33,24 @@ enum SchoolType {
   FOUR_YEAR
 }
 
+enum VerificationStatusType {
+  PENDING
+  VERIFIED
+  EXPIRED
+  REVOKED
+}
+
+enum ProfessorClaimMethod {
+  EMAIL
+  SSO
+}
+
+enum ModerationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model User {
   id            String          @id @default(cuid())
   email         String          @unique
@@ -73,6 +91,16 @@ model User {
   responses                    ReviewResponse[]
   reviewVotes                  ReviewVote[]
   schoolReviewVotes            SchoolReviewVote[]
+  verificationStatus           VerificationStatus?
+  professorProfile             ProfessorProfile?
+  reviewSummary                ReviewSummary?
+  courseMetadata               CourseMetadata[]
+
+  // A professor who signed up and claimed an existing seeded profile links here.
+  // The relation is 1-to-1: one existing professor can only be claimed by one user.
+  claimedProfessorId           String?          @unique
+  claimedProfessor             User?            @relation("ProfessorOwnership", fields: [claimedProfessorId], references: [id])
+  claimedByUser                User?            @relation("ProfessorOwnership")
 }
 
 model School {
@@ -141,6 +169,7 @@ model Review {
 
   @@index([professorId])
   @@index([studentId])
+  @@index([createdAt])
 }
 
 model ReviewVote {
@@ -205,10 +234,11 @@ model SchoolReviewVote {
 }
 
 model ReviewResponse {
-  id        String   @id @default(cuid())
+  id        String           @id @default(cuid())
   body      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  status    ModerationStatus @default(PENDING)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
 
   reviewId    String @unique
   professorId String
@@ -217,6 +247,7 @@ model ReviewResponse {
   professor User   @relation(fields: [professorId], references: [id])
 
   @@index([professorId])
+  @@index([status])
 }
 
 model Tag {
@@ -278,6 +309,7 @@ model Course {
   scheduleEntries ScheduleEntry[]
   materials       Material[]
   savedCourses    SavedCourse[]
+  metadata        CourseMetadata?
 
   @@unique([schoolId, courseNumber])
   @@index([schoolId])
@@ -475,4 +507,97 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Pillar 1: Student Verification
+// FERPA note: eduEmail is stored server-side only. tokenHash is a one-way hash
+// and the raw token is never persisted. verified flag on User is never exposed
+// to professor-facing API responses.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model VerificationStatus {
+  id          String                 @id @default(cuid())
+  userId      String                 @unique
+  eduEmail    String
+  // One-way hash of the verification token — raw token is never stored
+  tokenHash   String
+  status      VerificationStatusType @default(PENDING)
+  verifiedAt  DateTime?
+  expiresAt   DateTime
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([eduEmail])
+  @@index([status])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Pillar 3: Professor Portal
+// ─────────────────────────────────────────────────────────────────────────────
+
+model ProfessorProfile {
+  id                 String               @id @default(cuid())
+  professorId        String               @unique
+  isClaimed          Boolean              @default(false)
+  claimMethod        ProfessorClaimMethod?
+  claimedAt          DateTime?
+  bio                String?
+  officialEmail      String?
+  // Syllabus storage (UploadThing CDN URL)
+  syllabusUrl        String?
+  syllabusFilename   String?
+  syllabusUploadedAt DateTime?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+
+  professor User @relation(fields: [professorId], references: [id])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Pillar 2: AI Sentiment Engine
+// Caches nightly LLM-generated summaries to avoid re-running on every page load
+// ─────────────────────────────────────────────────────────────────────────────
+
+model ReviewSummary {
+  id                String   @id @default(cuid())
+  professorId       String   @unique
+  quickTake         String   // AI-generated one-paragraph overview
+  workload          String?  // Workload summary sentence
+  gradingDifficulty String?  // Grading difficulty summary sentence
+  teachingStyle     String?  // Teaching style summary sentence
+  sentimentScore    Float?   // 0.0 (very negative) – 1.0 (very positive)
+  reviewCount       Int      @default(0) // # reviews used for this summary
+  modelUsed         String?  // e.g. "gpt-4o-mini"
+  lastUpdated       DateTime @default(now())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  professor User @relation(fields: [professorId], references: [id])
+
+  @@index([lastUpdated])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Course Metadata (grade distributions, tags, class size)
+// ─────────────────────────────────────────────────────────────────────────────
+
+model CourseMetadata {
+  id                String   @id @default(cuid())
+  courseId          String   @unique
+  professorId       String?
+  // JSON array of tag strings, e.g. ["Lab-based", "Writing Intensive"]
+  tags              String[]
+  // JSON object: {"A": 35, "B": 40, "C": 20, "D": 3, "F": 2}
+  gradeDistribution Json?
+  classSize         Int?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  course    Course @relation(fields: [courseId], references: [id])
+  professor User?  @relation(fields: [professorId], references: [id])
+
+  @@index([professorId])
 }

@@ -10,6 +10,8 @@ import ProfessorClassesSection from "@/app/components/professor/ProfessorClasses
 import ProfessorMaterialsSection from "@/app/components/professor/ProfessorMaterialsSection";
 import ProfessorReviewsSection from "@/app/components/professor/ProfessorReviewsSection";
 import ProfessorSidebar from "@/app/components/professor/ProfessorSidebar";
+import QuickTake from "@/app/components/QuickTake";
+import ClaimProfileBanner from "@/app/components/professor/ClaimProfileBanner";
 
 export default async function ProfessorPage({
   params,
@@ -31,41 +33,29 @@ export default async function ProfessorPage({
       name: true,
       schools: {
         select: {
-          school: {
-            select: {
-              name: true,
-              slug: true
-            }
-          }
+          school: { select: { name: true, slug: true } }
         }
       },
       departments: {
         select: {
-          department: {
-            select: {
-              name: true
-            }
-          }
+          department: { select: { name: true } }
         }
       },
       tags: {
         select: {
-          tag: {
-            select: {
-              name: true
-            }
-          }
+          tag: { select: { name: true } }
         }
       },
       courses: {
         select: {
           id: true,
           name: true,
-          courseNumber: true
+          courseNumber: true,
+          metadata: {
+            select: { tags: true, gradeDistribution: true, classSize: true }
+          }
         },
-        orderBy: {
-          courseNumber: "asc"
-        }
+        orderBy: { courseNumber: "asc" }
       },
       materials: {
         select: {
@@ -76,22 +66,10 @@ export default async function ProfessorPage({
           term: true,
           createdAt: true,
           updatedAt: true,
-          course: {
-            select: {
-              name: true,
-              courseNumber: true
-            }
-          },
-          uploader: {
-            select: {
-              id: true,
-              name: true
-            }
-          }
+          course: { select: { name: true, courseNumber: true } },
+          uploader: { select: { id: true, name: true } }
         },
-        orderBy: {
-          createdAt: "desc"
-        }
+        orderBy: { createdAt: "desc" }
       },
       reviewsReceived: {
         select: {
@@ -114,12 +92,44 @@ export default async function ProfessorPage({
           createdAt: true,
           student: {
             select: {
-              name: true
+              name: true,
+              verified: true
+              // NOTE: student.email is intentionally excluded here — FERPA.
+              // verified flag only is exposed, never the eduEmail.
+            }
+          },
+          response: {
+            select: {
+              id: true,
+              body: true,
+              status: true,
+              createdAt: true
             }
           }
         },
-        orderBy: {
-          createdAt: "desc"
+        orderBy: { createdAt: "desc" }
+      },
+      // Professor portal data
+      professorProfile: {
+        select: {
+          isClaimed: true,
+          bio: true,
+          syllabusUrl: true,
+          syllabusFilename: true,
+          syllabusUploadedAt: true
+        }
+      },
+      // AI summary
+      reviewSummary: {
+        select: {
+          quickTake: true,
+          workload: true,
+          gradingDifficulty: true,
+          teachingStyle: true,
+          sentimentScore: true,
+          reviewCount: true,
+          lastUpdated: true,
+          modelUsed: true
         }
       }
     }
@@ -157,16 +167,11 @@ export default async function ProfessorPage({
   const difficultyAverage = average(
     professor.reviewsReceived.map((review) => review.difficulty)
   );
-  const expertiseAverage = average(
-    professor.reviewsReceived.map((review) => review.expertise)
-  );
+  const expertiseAverage = average(professor.reviewsReceived.map((review) => review.expertise));
   const enjoyabilityAverage = average(
     professor.reviewsReceived.map((review) => review.enjoyability)
   );
-  const clarityAverage = average(
-    professor.reviewsReceived.map((review) => review.clarity)
-  );
-
+  const clarityAverage = average(professor.reviewsReceived.map((review) => review.clarity));
 
   const isFollowing = userId
     ? Boolean(
@@ -284,6 +289,43 @@ export default async function ProfessorPage({
     where: { professorId: professor.id }
   });
 
+  // Is the logged-in user this professor?
+  // True if: they ARE the professor account, OR they have claimed this professor's profile.
+  const sessionUser = userId
+    ? await prisma.user.findUnique({
+        where: { id: userId },
+        select: { claimedProfessorId: true }
+      })
+    : null;
+  const isOwner = userId === professor.id || sessionUser?.claimedProfessorId === professor.id;
+
+  // Only show approved responses to students
+  const reviewsForDisplay = professor.reviewsReceived.map((review) => ({
+    id: review.id,
+    rating: review.rating,
+    difficulty: review.difficulty,
+    expertise: review.expertise,
+    enjoyability: review.enjoyability,
+    clarity: review.clarity,
+    helpfulUp: review.helpfulUp,
+    helpfulDown: review.helpfulDown,
+    wouldTakeAgain: review.wouldTakeAgain,
+    forCredit: review.forCredit,
+    attendanceMandatory: review.attendanceMandatory,
+    textbookRequired: review.textbookRequired,
+    onlineClass: review.onlineClass,
+    grade: review.grade ?? null,
+    body: review.body,
+    createdAt: review.createdAt,
+    studentName: review.student?.name ?? null,
+    isVerified: review.student?.verified ?? false,
+    // Only show approved responses
+    response:
+      review.response?.status === "APPROVED"
+        ? { body: review.response.body, createdAt: review.response.createdAt }
+        : null
+  }));
+
   return (
     <div className="home-shell">
       <Sidebar />
@@ -302,10 +344,37 @@ export default async function ProfessorPage({
           profileViewCount={profileViewCount}
           isFollowing={isFollowing}
           defaultOpenReview={searchParams?.writeReview === "1"}
+          isClaimed={professor.professorProfile?.isClaimed ?? false}
+          isOwner={isOwner}
         />
 
         <section className="professor-content">
           <div className="professor-main">
+            {/* AI Quick Take — shown only when summary exists (10+ reviews) */}
+            {professor.reviewSummary && (
+              <QuickTake
+                quickTake={professor.reviewSummary.quickTake}
+                workload={professor.reviewSummary.workload}
+                gradingDifficulty={professor.reviewSummary.gradingDifficulty}
+                teachingStyle={professor.reviewSummary.teachingStyle}
+                sentimentScore={professor.reviewSummary.sentimentScore}
+                reviewCount={professor.reviewSummary.reviewCount}
+                lastUpdated={professor.reviewSummary.lastUpdated}
+                modelUsed={professor.reviewSummary.modelUsed}
+              />
+            )}
+
+            {/* Professor claimed profile: bio + syllabus */}
+            {professor.professorProfile?.isClaimed && (
+              <ClaimProfileBanner
+                professorId={professor.id}
+                isClaimed={professor.professorProfile.isClaimed}
+                syllabusUrl={professor.professorProfile.syllabusUrl}
+                bio={professor.professorProfile.bio}
+                isOwner={isOwner}
+              />
+            )}
+
             <ProfessorClassesSection
               professorName={professor.name}
               courses={professor.courses}
@@ -331,25 +400,7 @@ export default async function ProfessorPage({
               professorId={professor.id}
               professorName={professor.name}
               professorSlug={params.slug}
-              reviews={professor.reviewsReceived.map((review) => ({
-                id: review.id,
-                rating: review.rating,
-                difficulty: review.difficulty,
-                expertise: review.expertise,
-                enjoyability: review.enjoyability,
-                clarity: review.clarity,
-                helpfulUp: review.helpfulUp,
-                helpfulDown: review.helpfulDown,
-                wouldTakeAgain: review.wouldTakeAgain,
-                forCredit: review.forCredit,
-                attendanceMandatory: review.attendanceMandatory,
-                textbookRequired: review.textbookRequired,
-                onlineClass: review.onlineClass,
-                grade: review.grade ?? null,
-                body: review.body,
-                createdAt: review.createdAt,
-                studentName: review.student?.name ?? null
-              }))}
+              reviews={reviewsForDisplay}
               defaultOpenReview={searchParams?.writeReview === "1"}
             />
           </div>

@@ -12,6 +12,8 @@ import ImpactCard from "@/app/components/account/ImpactCard";
 import ProfileCompletionCard from "@/app/components/account/ProfileCompletionCard";
 import RecommendationsCard from "@/app/components/account/RecommendationsCard";
 import NotificationsCard from "@/app/components/account/NotificationsCard";
+import VerifyEduEmailForm from "@/app/components/VerifyEduEmailForm";
+import VerifiedBadge from "@/app/components/VerifiedBadge";
 
 export default async function AccountPage() {
   const session = await auth();
@@ -345,6 +347,34 @@ export default async function AccountPage() {
         />
 
         <AccountCta scheduleCourses={scheduleCourses} schoolId={primarySchoolId} />
+
+        {/* Verification CTA — only shown to unverified students */}
+        {session?.user?.role !== "PROFESSOR" && !user.verified && (
+          <section style={{ margin: "0 0 28px" }}>
+            <VerifyEduEmailForm />
+          </section>
+        )}
+
+        {/* Verified status indicator */}
+        {user.verified && (
+          <section
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              marginBottom: 20,
+              padding: "12px 18px",
+              background: "var(--accent-soft)",
+              borderRadius: 12,
+              border: "1px solid rgba(15, 107, 72, 0.15)",
+              fontSize: "0.88rem",
+              color: "var(--ink-700)"
+            }}
+          >
+            <VerifiedBadge size="md" />
+            <span>Your university enrollment is verified. Your reviews show a Verified badge.</span>
+          </section>
+        )}
 
         <section className="account-grid">
           <div className="account-column">

@@ -1,35 +1,47 @@
 services:
-  classrack-db:
+  classrack-11249-db:
     image: postgres:16
-    container_name: classrack-db
+    container_name: classrack-11249-db
     environment:
       POSTGRES_USER: classrack
       POSTGRES_PASSWORD: classrack
       POSTGRES_DB: classrack
     ports:
-      - "5433:5432"
+      - "5435:5432"
     volumes:
-      - classrack-pgdata:/var/lib/postgresql/data
+      - classrack-11249-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U classrack"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
-  classrack-web:
+  classrack-11249-web:
     build: .
-    container_name: classrack-web
+    container_name: classrack-11249-web
     ports:
-      - "3001:3000"
-      - "5556:5555"
+      - "3003:3000"
+      - "5558:5555"
     environment:
-      DATABASE_URL: postgresql://classrack:classrack@classrack-db:5432/classrack
-      AUTH_URL: http://localhost:3001
-      NEXTAUTH_URL: http://localhost:3001
-      NEXT_PUBLIC_SITE_URL: http://localhost:3001
+      DATABASE_URL: postgresql://classrack:classrack@classrack-11249-db:5432/classrack
+      AUTH_URL: http://localhost:3003
+      NEXTAUTH_URL: http://localhost:3003
+      NEXT_PUBLIC_SITE_URL: http://localhost:3003
       AUTH_SECRET: ${AUTH_SECRET}
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      EMAIL_FROM: ${EMAIL_FROM}
+      UPLOADTHING_TOKEN: ${UPLOADTHING_TOKEN}
+      CRON_SECRET: ${CRON_SECRET}
+      ADMIN_EMAILS: ${ADMIN_EMAILS}
     volumes:
       - .:/app
       - /app/node_modules
     depends_on:
-      - classrack-db
-    command: sh -c "npx prisma studio --port 5555 --hostname 0.0.0.0 & npm run dev -- --hostname 0.0.0.0"
+      classrack-11249-db:
+        condition: service_healthy
+    command: sh -c "npx prisma migrate deploy && npx prisma studio --port 5555 --hostname 0.0.0.0 & npm run dev -- --hostname 0.0.0.0"
 
 volumes:
-  classrack-pgdata:
+  classrack-11249-pgdata:

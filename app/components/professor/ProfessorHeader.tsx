@@ -16,6 +16,8 @@ interface ProfessorHeaderProps {
   profileViewCount: number;
   isFollowing: boolean;
   defaultOpenReview: boolean;
+  isClaimed?: boolean;
+  isOwner?: boolean;
 }
 
 export default function ProfessorHeader({
@@ -31,7 +33,9 @@ export default function ProfessorHeader({
   difficultyAverageLabel,
   profileViewCount,
   isFollowing,
-  defaultOpenReview
+  defaultOpenReview,
+  isClaimed = false,
+  isOwner = false
 }: ProfessorHeaderProps) {
   return (
     <header className="professor-header">
@@ -40,7 +44,18 @@ export default function ProfessorHeader({
           <div className="professor-header__avatar" aria-hidden="true" />
           <div className="professor-header__info">
             <p className="professor-header__eyebrow">Professor profile</p>
-            <h1 className="professor-header__title">{name}</h1>
+            <h1 className="professor-header__title">
+              {name}
+              {isClaimed && (
+                <span
+                  className="verified-badge verified-badge--md"
+                  title="This professor has claimed and verified their profile"
+                  style={{ marginLeft: 10, verticalAlign: "middle" }}
+                >
+                  ✓ Verified Faculty
+                </span>
+              )}
+            </h1>
             <div className="professor-header__meta">
               {departmentNames.length > 0 && <span>Department: {departmentNames.join(", ")}</span>}
               {schoolLinks.length > 0 && (
@@ -91,6 +106,11 @@ export default function ProfessorHeader({
             professorSlug={professorSlug}
             defaultOpen={defaultOpenReview}
           />
+          {isOwner && (
+            <Link href="/professor-portal" className="btn btn--outline btn--sm">
+              My Portal
+            </Link>
+          )}
         </div>
       </div>
       <nav className="professor-nav" aria-label="Professor sections">

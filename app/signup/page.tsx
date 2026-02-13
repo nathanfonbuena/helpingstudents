@@ -17,12 +17,20 @@ export default function SignupPage({
           title="Create account"
           subtitle="Sign up to save reviews and vote on feedback."
           footer={
-            <p>
-              Already have an account?{" "}
-              <Link className="inline-link" href="/login">
-                Log in
-              </Link>
-            </p>
+            <>
+              <p>
+                Already have an account?{" "}
+                <Link className="inline-link" href="/login">
+                  Log in
+                </Link>
+              </p>
+              <p>
+                Are you a professor?{" "}
+                <Link className="inline-link" href="/signup/professor">
+                  Create a faculty account →
+                </Link>
+              </p>
+            </>
           }
         >
           <SignupForm callbackUrl={callbackUrl} />

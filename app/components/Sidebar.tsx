@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
+import type { Session } from "next-auth";
 
 const navItems = [
   {
@@ -77,8 +78,9 @@ const navItems = [
 
 export default function Sidebar() {
   const [open, setOpen] = useState(true);
-  const { status } = useSession();
+  const { status, data: session } = useSession();
   const isAuthed = status === "authenticated";
+  const isProfessor = (session as Session & { user?: { role?: string } })?.user?.role === "PROFESSOR";
 
   return (
     <aside className={open ? "sidebar is-open" : "sidebar"}>
@@ -109,12 +111,24 @@ export default function Sidebar() {
       <div className="sidebar__footer">
         {isAuthed ? (
           <>
+            {isProfessor && (
+              <a className="sidebar__action sidebar__action--ghost" href="/professor-portal">
+                Professor Portal
+              </a>
+            )}
             <a className="sidebar__action" href="/account">
               Account
             </a>
             <a className="sidebar__action sidebar__action--ghost" href="/settings">
               Settings
             </a>
+            <button
+              type="button"
+              className="sidebar__action sidebar__action--ghost sidebar__action--logout"
+              onClick={() => signOut({ callbackUrl: "/" })}
+            >
+              Log out
+            </button>
           </>
         ) : (
           <>
@@ -123,6 +137,9 @@ export default function Sidebar() {
             </a>
             <a className="sidebar__action sidebar__action--ghost" href="/login">
               Log in
+            </a>
+            <a className="sidebar__action sidebar__action--ghost sidebar__action--professor" href="/signup/professor">
+              Faculty sign up
             </a>
           </>
         )}

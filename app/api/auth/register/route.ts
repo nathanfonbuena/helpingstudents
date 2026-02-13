@@ -5,10 +5,11 @@ import { hashPassword } from "@/lib/password";
 
 export async function POST(request: Request) {
   try {
-    const { name, email, password } = (await request.json()) as {
+    const { name, email, password, role } = (await request.json()) as {
       name?: string;
       email?: string;
       password?: string;
+      role?: string;
     };
 
     const normalizedEmail = email?.toLowerCase().trim();
@@ -21,12 +22,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Password too short" }, { status: 400 });
     }
 
+    const assignedRole = role === "PROFESSOR" ? "PROFESSOR" : "STUDENT";
+
     const user = await prisma.user.create({
       data: {
         name: name?.trim() || null,
         email: normalizedEmail,
         passwordHash: hashPassword(password),
-        role: "STUDENT"
+        role: assignedRole,
+        ...(assignedRole === "PROFESSOR" && {
+          professorProfile: { create: { isClaimed: false } }
+        })
       },
       select: { id: true, email: true }
     });
