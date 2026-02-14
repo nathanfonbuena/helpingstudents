@@ -63,10 +63,10 @@ export default function SearchBox({
             type: "school" as const
           })),
           ...(payload.professors ?? []).map(
-            (item: { id: string; name: string; schoolName?: string | null }) => ({
-            ...item,
-            type: "professor" as const
-          })
+            (item: { id: string; name: string; slug?: string; schoolName?: string | null }) => ({
+              ...item,
+              type: "professor" as const
+            })
           ),
           ...(payload.courses ?? []).map(
             (item: { id: string; name: string; courseNumber?: string | null; schoolName?: string | null }) => ({

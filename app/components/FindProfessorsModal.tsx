@@ -58,7 +58,7 @@ export default function FindProfessorsModal({
             type: "school" as const
           })),
           ...(payload.professors ?? []).map(
-            (item: { id: string; name: string; schoolName?: string | null }) => ({
+            (item: { id: string; name: string; slug?: string; schoolName?: string | null }) => ({
               ...item,
               type: "professor" as const
             })
@@ -86,7 +86,8 @@ export default function FindProfessorsModal({
     }
 
     if (item.type === "professor") {
-      router.push(`/professor/${slugify(item.name)}`);
+      const professorSlug = item.slug ?? slugify(item.name);
+      router.push(`/professor/${professorSlug}`);
       onClose();
       return;
     }
@@ -180,9 +181,9 @@ export default function FindProfessorsModal({
             href={
               schoolId || query
                 ? `/search?${new URLSearchParams({
-                    ...(schoolId ? { schoolId } : {}),
-                    ...(query ? { q: query } : {})
-                  }).toString()}`
+                  ...(schoolId ? { schoolId } : {}),
+                  ...(query ? { q: query } : {})
+                }).toString()}`
                 : "/search"
             }
             onClick={onClose}

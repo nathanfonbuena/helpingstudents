@@ -107,7 +107,8 @@ export default async function AccountPage() {
           following: {
             select: {
               id: true,
-              name: true
+              name: true,
+              slug: true
             }
           }
         }
@@ -165,24 +166,24 @@ export default async function AccountPage() {
   const [reviewViewCounts, materialViewCounts, materialSaveCounts] = await Promise.all([
     reviewIds.length
       ? prisma.reviewView.groupBy({
-          by: ["reviewId"],
-          where: { reviewId: { in: reviewIds } },
-          _count: { reviewId: true }
-        })
+        by: ["reviewId"],
+        where: { reviewId: { in: reviewIds } },
+        _count: { reviewId: true }
+      })
       : Promise.resolve([]),
     materialIds.length
       ? prisma.materialView.groupBy({
-          by: ["materialId"],
-          where: { materialId: { in: materialIds } },
-          _count: { materialId: true }
-        })
+        by: ["materialId"],
+        where: { materialId: { in: materialIds } },
+        _count: { materialId: true }
+      })
       : Promise.resolve([]),
     materialIds.length
       ? prisma.materialSave.groupBy({
-          by: ["materialId"],
-          where: { materialId: { in: materialIds } },
-          _count: { materialId: true }
-        })
+        by: ["materialId"],
+        where: { materialId: { in: materialIds } },
+        _count: { materialId: true }
+      })
       : Promise.resolve([])
   ]);
 
@@ -204,15 +205,15 @@ export default async function AccountPage() {
 
   const uniqueReviewViewers = reviewIds.length
     ? await prisma.reviewView.groupBy({
-        by: ["viewerId"],
-        where: { reviewId: { in: reviewIds } }
-      })
+      by: ["viewerId"],
+      where: { reviewId: { in: reviewIds } }
+    })
     : [];
   const uniqueMaterialViewers = materialIds.length
     ? await prisma.materialView.groupBy({
-        by: ["viewerId"],
-        where: { materialId: { in: materialIds } }
-      })
+      by: ["viewerId"],
+      where: { materialId: { in: materialIds } }
+    })
     : [];
   const uniqueViewerIds = new Set([
     ...uniqueReviewViewers.map((item) => item.viewerId),
@@ -226,20 +227,20 @@ export default async function AccountPage() {
 
   const topUploadThisWeek = materialIds.length
     ? await prisma.materialView.groupBy({
-        by: ["materialId"],
-        where: {
-          materialId: { in: materialIds },
-          createdAt: { gte: weekAgo }
-        },
-        _count: { materialId: true },
-        orderBy: { _count: { materialId: "desc" } },
-        take: 1
-      })
+      by: ["materialId"],
+      where: {
+        materialId: { in: materialIds },
+        createdAt: { gte: weekAgo }
+      },
+      _count: { materialId: true },
+      orderBy: { _count: { materialId: "desc" } },
+      take: 1
+    })
     : [];
 
   const topUploadLabel = topUploadThisWeek.length
     ? materialsAuthored.find((material) => material.id === topUploadThisWeek[0].materialId)?.title ??
-      null
+    null
     : null;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const topUploadUrl = topUploadLabel
@@ -252,7 +253,7 @@ export default async function AccountPage() {
     .map((professor) => ({
       id: professor.id,
       name: professor.name ?? "Professor",
-      slug: professor.name ? slugify(professor.name) : professor.id
+      slug: professor.slug ?? (professor.name ? slugify(professor.name) : professor.id)
     }));
 
   const savedCourseList = savedCourses.map((entry) => ({
@@ -267,17 +268,17 @@ export default async function AccountPage() {
   const newUploadsCount =
     savedProfessorIds.length || savedCourseIds.length
       ? await prisma.material.count({
-          where: {
-            status: "APPROVED",
-            createdAt: { gte: weekAgo },
-            OR: [
-              ...(savedProfessorIds.length
-                ? [{ professorId: { in: savedProfessorIds } }]
-                : []),
-              ...(savedCourseIds.length ? [{ courseId: { in: savedCourseIds } }] : [])
-            ]
-          }
-        })
+        where: {
+          status: "APPROVED",
+          createdAt: { gte: weekAgo },
+          OR: [
+            ...(savedProfessorIds.length
+              ? [{ professorId: { in: savedProfessorIds } }]
+              : []),
+            ...(savedCourseIds.length ? [{ courseId: { in: savedCourseIds } }] : [])
+          ]
+        }
+      })
       : 0;
 
   const scheduleCourses = scheduleEntries.map((entry) => ({
@@ -292,41 +293,41 @@ export default async function AccountPage() {
 
   const recommendedProfessors = primarySchoolId
     ? await prisma.user.findMany({
-        where: {
-          role: "PROFESSOR",
-          schools: { some: { schoolId: primarySchoolId } }
-        },
-        select: { id: true, name: true },
-        orderBy: { reviewsReceived: { _count: "desc" } },
-        take: 3
-      })
+      where: {
+        role: "PROFESSOR",
+        schools: { some: { schoolId: primarySchoolId } }
+      },
+      select: { id: true, name: true, slug: true },
+      orderBy: { reviewsReceived: { _count: "desc" } },
+      take: 3
+    })
     : [];
 
   const recommendedCourses = primarySchoolId
     ? await prisma.course.findMany({
-        where: { schoolId: primarySchoolId },
-        select: { id: true, name: true, courseNumber: true },
-        orderBy: { courseNumber: "asc" },
-        take: 3
-      })
+      where: { schoolId: primarySchoolId },
+      select: { id: true, name: true, courseNumber: true },
+      orderBy: { courseNumber: "asc" },
+      take: 3
+    })
     : [];
 
   const recommendedUploads =
     savedProfessorIds.length || savedCourseIds.length
       ? await prisma.material.findMany({
-          where: {
-            status: "APPROVED",
-            OR: [
-              ...(savedProfessorIds.length
-                ? [{ professorId: { in: savedProfessorIds } }]
-                : []),
-              ...(savedCourseIds.length ? [{ courseId: { in: savedCourseIds } }] : [])
-            ]
-          },
-          select: { id: true, title: true },
-          orderBy: { createdAt: "desc" },
-          take: 3
-        })
+        where: {
+          status: "APPROVED",
+          OR: [
+            ...(savedProfessorIds.length
+              ? [{ professorId: { in: savedProfessorIds } }]
+              : []),
+            ...(savedCourseIds.length ? [{ courseId: { in: savedCourseIds } }] : [])
+          ]
+        },
+        select: { id: true, title: true },
+        orderBy: { createdAt: "desc" },
+        take: 3
+      })
       : [];
 
   return (
@@ -458,18 +459,18 @@ export default async function AccountPage() {
           items={
             recommendedProfessors.length
               ? recommendedProfessors.map((professor) => ({
-                  id: professor.id,
-                  label: professor.name ?? "Professor"
-                }))
+                id: professor.id,
+                label: professor.name ?? "Professor"
+              }))
               : recommendedCourses.length
                 ? recommendedCourses.map((course) => ({
-                    id: course.id,
-                    label: `${course.courseNumber} · ${course.name}`
-                  }))
+                  id: course.id,
+                  label: `${course.courseNumber} · ${course.name}`
+                }))
                 : recommendedUploads.map((upload) => ({
-                    id: upload.id,
-                    label: upload.title
-                  }))
+                  id: upload.id,
+                  label: upload.title
+                }))
           }
         />
 

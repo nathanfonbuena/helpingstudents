@@ -70,6 +70,7 @@ export default async function TopProfessorsPage({
     select: {
       id: true,
       name: true,
+      slug: true,
       schools: {
         select: {
           school: {
@@ -94,6 +95,7 @@ export default async function TopProfessorsPage({
     return {
       id: group.professor_id,
       name: professor?.name ?? null,
+      slug: professor?.slug ?? null,
       averageRating: group.average_rating ?? null,
       reviewCount: group.review_count,
       score: group.score ?? null,

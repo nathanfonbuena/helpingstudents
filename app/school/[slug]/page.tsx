@@ -88,6 +88,7 @@ export default async function SchoolPage({
     select: {
       id: true,
       name: true,
+      slug: true,
       reviewsReceived: {
         select: {
           rating: true
@@ -157,7 +158,7 @@ export default async function SchoolPage({
                       <Link
                         key={professor.id}
                         className="result-card"
-                        href={`/professor/${slugify(professor.name ?? "")}`}
+                        href={`/professor/${professor.slug ?? slugify(professor.name ?? "")}`}
                       >
                         <h3>{professor.name}</h3>
                         <p>

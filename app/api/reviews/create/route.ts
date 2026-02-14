@@ -53,11 +53,13 @@ export async function POST(request: Request) {
     },
     select: {
       professor: {
-        select: { name: true }
+        select: { name: true, slug: true }
       }
     }
   });
 
-  const professorSlug = review.professor?.name ? slugify(review.professor.name) : undefined;
+  const professorSlug =
+    review.professor?.slug ??
+    (review.professor?.name ? slugify(review.professor.name) : undefined);
   return NextResponse.json({ professorSlug });
 }

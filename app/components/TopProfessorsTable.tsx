@@ -4,6 +4,7 @@ import { slugify } from "@/app/lib/slug";
 interface TopProfessorItem {
   id: string;
   name: string | null;
+  slug?: string | null;
   averageRating: number | null;
   reviewCount: number;
   score: number | null;
@@ -32,7 +33,10 @@ export default function TopProfessorsTable({
           <span>#{item.rank}</span>
           <span>
             {item.name ? (
-              <Link className="inline-link" href={`/professor/${slugify(item.name)}`}>
+              <Link
+                className="inline-link"
+                href={`/professor/${item.slug ?? slugify(item.name)}`}
+              >
                 {item.name}
               </Link>
             ) : (
