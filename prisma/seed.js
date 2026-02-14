@@ -154,9 +154,11 @@ async function main() {
     const firstName = professorFirstNames[i % professorFirstNames.length];
     const lastName =
       professorLastNames[Math.floor(i / professorFirstNames.length) % professorLastNames.length];
+    const name = `Dr. ${firstName} ${lastName}`;
     professorsData.push({
       email: `prof.${i + 1}@classrack.dev`,
-      name: `Dr. ${firstName} ${lastName}`,
+      name,
+      slug: slugify(name),
       passwordHash,
       theme: "LIGHT",
       role: "PROFESSOR"

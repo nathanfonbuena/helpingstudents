@@ -40,6 +40,7 @@ export async function GET(request: Request) {
       select: {
         id: true,
         name: true,
+        slug: true,
         schools: {
           select: {
             school: {
@@ -83,6 +84,7 @@ export async function GET(request: Request) {
   const professorResults = professors.map((professor) => ({
     id: professor.id,
     name: professor.name,
+    slug: professor.slug,
     schoolName: professor.schools[0]?.school.name ?? null
   }));
 

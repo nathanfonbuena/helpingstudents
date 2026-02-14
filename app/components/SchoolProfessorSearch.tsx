@@ -5,7 +5,7 @@ import Link from "next/link";
 import { slugify } from "@/app/lib/slug";
 
 interface SchoolProfessorSearchProps {
-  professors: { id: string; name: string | null }[];
+  professors: { id: string; name: string | null; slug?: string | null }[];
 }
 
 export default function SchoolProfessorSearch({ professors }: SchoolProfessorSearchProps) {
@@ -43,7 +43,7 @@ export default function SchoolProfessorSearch({ professors }: SchoolProfessorSea
             <Link
               key={professor.id}
               className="school-search__item"
-              href={`/professor/${slugify(professor.name ?? "")}`}
+              href={`/professor/${professor.slug ?? slugify(professor.name ?? "")}`}
             >
               {professor.name ?? "Unnamed professor"}
             </Link>

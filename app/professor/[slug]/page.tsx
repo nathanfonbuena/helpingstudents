@@ -24,15 +24,17 @@ export default async function ProfessorPage({
   const viewDate = new Date(
     Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())
   );
-  const professors = await prisma.user.findMany({
-    where: { role: "PROFESSOR" },
+  const professor = await prisma.user.findFirst({
+    where: { role: "PROFESSOR", slug: params.slug },
     select: {
       id: true,
       name: true,
+      slug: true,
       schools: {
         select: {
           school: {
             select: {
+              id: true,
               name: true,
               slug: true
             }
@@ -125,16 +127,13 @@ export default async function ProfessorPage({
     }
   });
 
-  const professor = professors.find(
-    (item) => item.name && slugify(item.name) === params.slug
-  );
-
   if (!professor || !professor.name) {
     notFound();
   }
 
   const schoolLinks = sortByName(
     professor.schools.map((item) => ({
+      id: item.school.id,
       name: item.school.name,
       slug: item.school.slug
     }))
@@ -167,33 +166,42 @@ export default async function ProfessorPage({
     professor.reviewsReceived.map((review) => review.clarity)
   );
 
+  const professorSlug = professor.slug ?? params.slug;
 
   const isFollowing = userId
     ? Boolean(
-        await prisma.userFollow.findUnique({
-          where: {
-            followerId_followingId: {
-              followerId: userId,
-              followingId: professor.id
-            }
+      await prisma.userFollow.findUnique({
+        where: {
+          followerId_followingId: {
+            followerId: userId,
+            followingId: professor.id
           }
-        })
-      )
+        }
+      })
+    )
     : false;
 
-  const primarySchoolSlug = schoolLinks[0]?.slug;
-  const relatedProfessors = professors
-    .filter((item) => item.id !== professor.id && item.name)
-    .filter((item) =>
-      primarySchoolSlug
-        ? item.schools.some((school) => school.school.slug === primarySchoolSlug)
-        : false
-    )
-    .slice(0, 3)
-    .map((item) => ({
-      name: item.name as string,
-      slug: slugify(item.name as string)
-    }));
+  const primarySchoolId = schoolLinks[0]?.id;
+  const relatedProfessors = primarySchoolId
+    ? (await prisma.user.findMany({
+      where: {
+        role: "PROFESSOR",
+        id: { not: professor.id },
+        name: { not: null },
+        schools: { some: { schoolId: primarySchoolId } }
+      },
+      select: {
+        name: true,
+        slug: true
+      },
+      orderBy: { name: "asc" },
+      take: 3
+    }))
+      .map((item) => ({
+        name: item.name as string,
+        slug: item.slug ?? slugify(item.name as string)
+      }))
+    : [];
 
   const topCourses = professor.courses.slice(0, 3);
 
@@ -226,9 +234,9 @@ export default async function ProfessorPage({
 
   const savedMaterialIds = userId
     ? await prisma.materialSave.findMany({
-        where: { userId, materialId: { in: visibleMaterials.map((material) => material.id) } },
-        select: { materialId: true }
-      })
+      where: { userId, materialId: { in: visibleMaterials.map((material) => material.id) } },
+      select: { materialId: true }
+    })
     : [];
   const savedMaterialSet = new Set(savedMaterialIds.map((item) => item.materialId));
 
@@ -291,7 +299,7 @@ export default async function ProfessorPage({
         <ProfessorHeader
           name={professor.name}
           professorId={professor.id}
-          professorSlug={params.slug}
+          professorSlug={professorSlug}
           schoolLinks={schoolLinks}
           departmentNames={departmentNames}
           tagNames={tagNames}
@@ -313,7 +321,7 @@ export default async function ProfessorPage({
             />
 
             <ProfessorMaterialsSection
-              professorSlug={params.slug}
+              professorSlug={professorSlug}
               materials={visibleMaterials.map((material) => ({
                 id: material.id,
                 title: material.title,
@@ -330,7 +338,7 @@ export default async function ProfessorPage({
             <ProfessorReviewsSection
               professorId={professor.id}
               professorName={professor.name}
-              professorSlug={params.slug}
+              professorSlug={professorSlug}
               reviews={professor.reviewsReceived.map((review) => ({
                 id: review.id,
                 rating: review.rating,

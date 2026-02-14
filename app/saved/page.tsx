@@ -16,7 +16,7 @@ export default async function SavedPage() {
     prisma.userFollow.findMany({
       where: { followerId: userId },
       select: {
-        following: { select: { id: true, name: true } }
+        following: { select: { id: true, name: true, slug: true } }
       }
     }),
     prisma.savedCourse.findMany({
@@ -33,7 +33,7 @@ export default async function SavedPage() {
     .map((professor) => ({
       id: professor.id,
       name: professor.name ?? "Professor",
-      slug: professor.name ? slugify(professor.name) : professor.id
+      slug: professor.slug ?? (professor.name ? slugify(professor.name) : professor.id)
     }));
 
   return (

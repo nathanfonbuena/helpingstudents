@@ -4,6 +4,7 @@ import { slugify } from "@/app/lib/slug";
 interface ProfessorReviewItem {
   id: string;
   professorName: string | null;
+  professorSlug?: string | null;
   rating: number;
   body: string;
   createdAt: Date;
@@ -54,7 +55,11 @@ export default function AccountReviewList({
             </div>
             <p className="review-card__body">{review.body}</p>
             {review.professorName && (
-              <Link className="inline-link" href={`/professor/${slugify(review.professorName)}`}>
+              <Link
+                className="inline-link"
+                href={`/professor/${review.professorSlug ?? slugify(review.professorName)
+                  }`}
+              >
                 View professor
               </Link>
             )}
