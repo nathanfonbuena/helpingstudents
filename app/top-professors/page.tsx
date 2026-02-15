@@ -5,6 +5,7 @@ import TopProfessorsTable from "@/app/components/TopProfessorsTable";
 import { firstByName } from "@/app/lib/sortUtils";
 import { slugify } from "@/app/lib/slug";
 import { Prisma } from "@prisma/client";
+import RankingExplainability from "@/app/components/ranking/RankingExplainability";
 
 const PAGE_SIZE = 25;
 const RATING_WEIGHT = 8;
@@ -20,7 +21,7 @@ interface TopProfessorsPageProps {
 export default async function TopProfessorsPage({
   searchParams
 }: TopProfessorsPageProps) {
-  const sort =
+  const sort: "score" | "rating" | "reviews" =
     searchParams?.sort === "rating" || searchParams?.sort === "reviews"
       ? searchParams.sort
       : "score";
@@ -170,6 +171,7 @@ export default async function TopProfessorsPage({
             <button type="submit" className="pagination__link">
               Apply
             </button>
+            <RankingExplainability rankingType="professors" sort={sort} />
           </form>
 
           <TopProfessorsTable items={items} />

@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { slugify } from "@/app/lib/slug";
+import RankingConfidenceBadge from "@/app/components/ranking/RankingConfidenceBadge";
+import CompareToggleButton from "@/app/components/compare/CompareToggleButton";
 
 interface TopProfessorItem {
   id: string;
@@ -35,12 +37,21 @@ export default function TopProfessorsTable({
           </span>
           <span className="ranking-cell ranking-cell--professor" data-label="Professor">
             {item.name ? (
-              <Link
-                className="inline-link"
-                href={`/professor/${item.slug ?? slugify(item.name)}`}
-              >
-                {item.name}
-              </Link>
+              <span className="ranking-professor-cell">
+                <Link
+                  className="inline-link"
+                  href={`/professor/${item.slug ?? slugify(item.name)}`}
+                >
+                  {item.name}
+                </Link>
+                <CompareToggleButton
+                  professorId={item.id}
+                  professorName={item.name}
+                  professorSlug={item.slug ?? slugify(item.name)}
+                  source="rankings"
+                  className="btn btn--ghost btn--sm ranking-compare-btn"
+                />
+              </span>
             ) : (
               "Unknown"
             )}
@@ -58,7 +69,14 @@ export default function TopProfessorsTable({
             {item.score ? item.score.toFixed(2) : "N/A"}
           </span>
           <span className="ranking-cell ranking-cell--reviews" data-label="Reviews">
-            {item.reviewCount}
+            <span className="ranking-reviews-cell">
+              <span>{item.reviewCount}</span>
+              <RankingConfidenceBadge
+                entityType="professor"
+                entityId={item.id}
+                reviewCount={item.reviewCount}
+              />
+            </span>
           </span>
         </div>
       ))}
