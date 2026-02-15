@@ -86,6 +86,7 @@ model User {
   savedCourses                 SavedCourse[]
   materialViews                MaterialView[]          @relation("material_views_viewer")
   materialSaves                MaterialSave[]
+  searchHistory                SearchHistory[]
   notifications                Notification[]
   accounts                     Account[]
   sessions                     Session[]
@@ -469,6 +470,22 @@ model Notification {
 
   @@index([userId])
   @@index([createdAt])
+}
+
+model SearchHistory {
+  id             String   @id @default(cuid())
+  userId         String
+  query          String
+  normalizedQuery String
+  count          Int      @default(1)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  lastSearchedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, normalizedQuery])
+  @@index([userId, lastSearchedAt])
 }
 
 model Account {
