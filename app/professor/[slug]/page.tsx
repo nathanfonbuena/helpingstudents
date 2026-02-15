@@ -19,10 +19,17 @@ export default async function ProfessorPage({
   searchParams
 }: {
   params: { slug: string };
-  searchParams?: { writeReview?: string };
+  searchParams?: { writeReview?: string; reviewPage?: string; reviewSort?: string };
 }) {
+  const REVIEWS_PAGE_SIZE = 5;
   const session = await auth();
   const userId = session?.user?.id ?? null;
+  const requestedReviewPage = Number(searchParams?.reviewPage ?? "1");
+  const reviewPage =
+    Number.isFinite(requestedReviewPage) && requestedReviewPage > 0
+      ? Math.floor(requestedReviewPage)
+      : 1;
+  const reviewSort = searchParams?.reviewSort === "helpful" ? "helpful" : "recent";
   const today = new Date();
   const viewDate = new Date(
     Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())
@@ -160,7 +167,22 @@ export default async function ProfessorPage({
   const tagNames = sortByName(professor.tags.map((item) => ({ name: item.tag.name }))).map(
     (item) => item.name
   );
-  const reviewCount = professor.reviewsReceived.length;
+  const sortedReviews = [...professor.reviewsReceived].sort((a, b) => {
+    if (reviewSort === "helpful") {
+      const helpfulScoreA = a.helpfulUp - a.helpfulDown;
+      const helpfulScoreB = b.helpfulUp - b.helpfulDown;
+      if (helpfulScoreB !== helpfulScoreA) return helpfulScoreB - helpfulScoreA;
+      if (b.helpfulUp !== a.helpfulUp) return b.helpfulUp - a.helpfulUp;
+    }
+    return b.createdAt.getTime() - a.createdAt.getTime();
+  });
+  const reviewCount = sortedReviews.length;
+  const totalReviewPages = Math.max(1, Math.ceil(reviewCount / REVIEWS_PAGE_SIZE));
+  const safeReviewPage = Math.min(reviewPage, totalReviewPages);
+  const paginatedReviews = sortedReviews.slice(
+    (safeReviewPage - 1) * REVIEWS_PAGE_SIZE,
+    safeReviewPage * REVIEWS_PAGE_SIZE
+  );
   const materialsCount = professor.materials.filter((material) => material.status === "APPROVED")
     .length;
   const wouldTakeAgainCount = professor.reviewsReceived.filter(
@@ -272,6 +294,7 @@ export default async function ProfessorPage({
     });
 
     const reviewViewData = professor.reviewsReceived
+      .slice((safeReviewPage - 1) * REVIEWS_PAGE_SIZE, safeReviewPage * REVIEWS_PAGE_SIZE)
       .filter((review) => review.studentId !== userId)
       .map((review) => ({
         reviewId: review.id,
@@ -317,7 +340,7 @@ export default async function ProfessorPage({
   const isOwner = userId === professor.id || sessionUser?.claimedProfessorId === professor.id;
 
   // Only show approved responses to students
-  const reviewsForDisplay = professor.reviewsReceived.map((review) => ({
+  const reviewsForDisplay = paginatedReviews.map((review) => ({
     id: review.id,
     rating: review.rating,
     difficulty: review.difficulty,
@@ -403,6 +426,17 @@ export default async function ProfessorPage({
               materialCountByCourse={materialCountByCourse}
             />
 
+            <ProfessorReviewsSection
+              professorId={professor.id}
+              professorName={professor.name}
+              professorSlug={professorSlug}
+              reviews={reviewsForDisplay}
+              defaultOpenReview={searchParams?.writeReview === "1"}
+              reviewSort={reviewSort}
+              reviewPage={safeReviewPage}
+              totalReviewPages={totalReviewPages}
+            />
+
             <ProfessorMaterialsSection
               professorSlug={professorSlug}
               materials={visibleMaterials.map((material) => ({
@@ -416,14 +450,6 @@ export default async function ProfessorPage({
                 course: material.course
               }))}
               savedMaterialIds={savedMaterialSet}
-            />
-
-            <ProfessorReviewsSection
-              professorId={professor.id}
-              professorName={professor.name}
-              professorSlug={professorSlug}
-              reviews={reviewsForDisplay}
-              defaultOpenReview={searchParams?.writeReview === "1"}
             />
           </div>
 
