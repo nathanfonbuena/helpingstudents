@@ -8,7 +8,7 @@ describe("NotificationsCard", () => {
     expect(screen.getByText(/No notifications yet/)).toBeInTheDocument();
   });
 
-  it(\"renders notifications\", () => {
+  it("renders notifications", () => {
     render(
       <NotificationsCard
         notifications={notifications.map((item) => ({

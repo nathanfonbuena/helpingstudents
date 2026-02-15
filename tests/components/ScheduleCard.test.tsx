@@ -33,7 +33,7 @@ describe("ScheduleCard", () => {
         entries={[]}
         savedCourseIds={new Set()}
         schoolId={null}
-        scheduleCourses={[]}
+        currentUserId="test-user"
       />
     );
     expect(screen.getByText(/Add your schedule/)).toBeInTheDocument();

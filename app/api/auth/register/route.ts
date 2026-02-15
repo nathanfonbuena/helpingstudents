@@ -5,11 +5,15 @@ import { hashPassword } from "@/lib/password";
 
 export async function POST(request: Request) {
   try {
-    const { name, email, password, role } = (await request.json()) as {
+    const { name, email, password, role, firstRunSelection } = (await request.json()) as {
       name?: string;
       email?: string;
       password?: string;
       role?: string;
+      firstRunSelection?: {
+        schoolId?: string;
+        role?: string;
+      };
     };
 
     const normalizedEmail = email?.toLowerCase().trim();
@@ -23,18 +27,41 @@ export async function POST(request: Request) {
     }
 
     const assignedRole = role === "PROFESSOR" ? "PROFESSOR" : "STUDENT";
+    const preferredSchoolId = firstRunSelection?.schoolId?.trim();
 
-    const user = await prisma.user.create({
-      data: {
-        name: name?.trim() || null,
-        email: normalizedEmail,
-        passwordHash: hashPassword(password),
-        role: assignedRole,
-        ...(assignedRole === "PROFESSOR" && {
-          professorProfile: { create: { isClaimed: false } }
+    const school =
+      preferredSchoolId
+        ? await prisma.school.findUnique({
+          where: { id: preferredSchoolId },
+          select: { id: true }
         })
-      },
-      select: { id: true, email: true }
+        : null;
+
+    const user = await prisma.$transaction(async (tx) => {
+      const createdUser = await tx.user.create({
+        data: {
+          name: name?.trim() || null,
+          email: normalizedEmail,
+          passwordHash: hashPassword(password),
+          role: assignedRole,
+          ...(assignedRole === "PROFESSOR" && {
+            professorProfile: { create: { isClaimed: false } }
+          })
+        },
+        select: { id: true, email: true }
+      });
+
+      if (school?.id) {
+        await tx.userSchool.create({
+          data: {
+            userId: createdUser.id,
+            schoolId: school.id,
+            role: assignedRole
+          }
+        });
+      }
+
+      return createdUser;
     });
 
     return NextResponse.json({ id: user.id, email: user.email });

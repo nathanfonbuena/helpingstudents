@@ -10,6 +10,7 @@ import ProfessorClassesSection from "@/app/components/professor/ProfessorClasses
 import ProfessorMaterialsSection from "@/app/components/professor/ProfessorMaterialsSection";
 import ProfessorReviewsSection from "@/app/components/professor/ProfessorReviewsSection";
 import ProfessorSidebar from "@/app/components/professor/ProfessorSidebar";
+import MobileProfessorActions from "@/app/components/professor/MobileProfessorActions";
 import QuickTake from "@/app/components/QuickTake";
 import ClaimProfileBanner from "@/app/components/professor/ClaimProfileBanner";
 
@@ -175,15 +176,11 @@ export default async function ProfessorPage({
   const enjoyabilityAverage = average(
     professor.reviewsReceived.map((review) => review.enjoyability)
   );
-<<<<<<< HEAD
-  const clarityAverage = average(professor.reviewsReceived.map((review) => review.clarity));
-=======
   const clarityAverage = average(
     professor.reviewsReceived.map((review) => review.clarity)
   );
 
   const professorSlug = professor.slug ?? params.slug;
->>>>>>> new-changes
 
   const isFollowing = userId
     ? Boolean(
@@ -367,6 +364,11 @@ export default async function ProfessorPage({
           isClaimed={professor.professorProfile?.isClaimed ?? false}
           isOwner={isOwner}
         />
+        <MobileProfessorActions
+          professorId={professor.id}
+          professorSlug={professorSlug}
+          initialFollowing={isFollowing}
+        />
 
         <section className="professor-content">
           <div className="professor-main">
@@ -419,31 +421,8 @@ export default async function ProfessorPage({
             <ProfessorReviewsSection
               professorId={professor.id}
               professorName={professor.name}
-<<<<<<< HEAD
-              professorSlug={params.slug}
-              reviews={reviewsForDisplay}
-=======
               professorSlug={professorSlug}
-              reviews={professor.reviewsReceived.map((review) => ({
-                id: review.id,
-                rating: review.rating,
-                difficulty: review.difficulty,
-                expertise: review.expertise,
-                enjoyability: review.enjoyability,
-                clarity: review.clarity,
-                helpfulUp: review.helpfulUp,
-                helpfulDown: review.helpfulDown,
-                wouldTakeAgain: review.wouldTakeAgain,
-                forCredit: review.forCredit,
-                attendanceMandatory: review.attendanceMandatory,
-                textbookRequired: review.textbookRequired,
-                onlineClass: review.onlineClass,
-                grade: review.grade ?? null,
-                body: review.body,
-                createdAt: review.createdAt,
-                studentName: review.student?.name ?? null
-              }))}
->>>>>>> new-changes
+              reviews={reviewsForDisplay}
               defaultOpenReview={searchParams?.writeReview === "1"}
             />
           </div>

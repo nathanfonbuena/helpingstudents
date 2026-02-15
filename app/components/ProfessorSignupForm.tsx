@@ -4,6 +4,8 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
+const FIRST_RUN_SELECTION_KEY = "firstRunSelection:v1";
+
 export default function ProfessorSignupForm() {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -18,10 +20,36 @@ export default function ProfessorSignupForm() {
     setError(null);
     setLoading(true);
 
+    const rawSelection = window.localStorage.getItem(FIRST_RUN_SELECTION_KEY);
+    let firstRunSelection: { role?: "STUDENT" | "PROFESSOR"; schoolId?: string; schoolName?: string } | null = null;
+    if (rawSelection) {
+      try {
+        firstRunSelection = JSON.parse(rawSelection) as {
+          role?: "STUDENT" | "PROFESSOR";
+          schoolId?: string;
+          schoolName?: string;
+        };
+      } catch {
+        firstRunSelection = null;
+      }
+    }
+
     const response = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password, role: "PROFESSOR" })
+      body: JSON.stringify({
+        name,
+        email,
+        password,
+        role: "PROFESSOR",
+        firstRunSelection:
+          firstRunSelection && firstRunSelection.schoolId
+            ? {
+              role: firstRunSelection.role,
+              schoolId: firstRunSelection.schoolId
+            }
+            : undefined
+      })
     });
 
     if (!response.ok) {
@@ -43,6 +71,17 @@ export default function ProfessorSignupForm() {
     if (result?.error) {
       setError("Account created, but login failed. Please log in.");
       return;
+    }
+
+    if (firstRunSelection?.schoolId) {
+      const sessionResponse = await fetch("/api/auth/session");
+      if (sessionResponse.ok) {
+        const sessionPayload = (await sessionResponse.json()) as { user?: { id?: string } };
+        if (sessionPayload.user?.id) {
+          window.localStorage.setItem(`firstRunPrompt:v1:${sessionPayload.user.id}`, "completed");
+        }
+      }
+      window.localStorage.removeItem(FIRST_RUN_SELECTION_KEY);
     }
 
     router.push("/professor-portal");

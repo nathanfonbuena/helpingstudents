@@ -15,7 +15,7 @@ Quick start
    make seed
 
 5) Open the app
-   http://localhost:3000
+   http://localhost:3003
 
 Common commands
 
@@ -37,13 +37,13 @@ Docker shortcuts (same as Makefile)
   docker compose up --build -d
 
 - Apply migrations
-  docker compose exec web npx prisma migrate deploy
+  docker compose exec classrack-11249-web npx prisma migrate deploy
 
 - Reset database
-  docker compose exec web npx prisma migrate reset --force
+  docker compose exec classrack-11249-web npx prisma migrate reset --force
 
 - Seed data
-  docker compose exec web node prisma/seed.js
+  docker compose exec classrack-11249-web node prisma/seed.js
 
 Testing
 
@@ -58,4 +58,4 @@ Notes
 - If you run Prisma locally, regenerate the client:
   npx prisma generate
 - If you run Prisma inside Docker, regenerate the client:
-  docker compose exec web npx prisma generate
+  docker compose exec classrack-11249-web npx prisma generate

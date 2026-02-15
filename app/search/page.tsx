@@ -8,6 +8,7 @@ import ProfessorResultCard from "@/app/components/search/ProfessorResultCard";
 import CourseResultCard from "@/app/components/search/CourseResultCard";
 import ResultsSection from "@/app/components/search/ResultsSection";
 import ResultsEmptyState from "@/app/components/search/ResultsEmptyState";
+import { slugify } from "@/app/lib/slug";
 
 interface SearchPageProps {
   searchParams?: {
@@ -115,6 +116,70 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     : departmentsOptions;
 
   const savedCourseSet = new Set(savedCourses.map((course) => course.courseId));
+  const noMatches = query && schools.length === 0 && professors.length === 0 && courses.length === 0;
+
+  const querySeed = query
+    .split(/\s+/)
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .sort((a, b) => b.length - a.length)[0] ?? query;
+
+  const [selectedSchool, similarSchools, similarProfessors, fallbackProfessors] =
+    noMatches
+      ? await Promise.all([
+        schoolId
+          ? prisma.school.findUnique({
+            where: { id: schoolId },
+            select: { id: true, name: true }
+          })
+          : Promise.resolve(null),
+        prisma.school.findMany({
+          where: {
+            OR: [
+              { name: { contains: querySeed, mode: "insensitive" } },
+              { nickname: { contains: querySeed, mode: "insensitive" } }
+            ]
+          },
+          select: { id: true, name: true },
+          orderBy: { enrollmentSize: "desc" },
+          take: 4
+        }),
+        prisma.user.findMany({
+          where: {
+            role: "PROFESSOR",
+            name: { not: null, contains: querySeed, mode: "insensitive" },
+            ...(schoolId ? { schools: { some: { schoolId } } } : {})
+          },
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            schools: {
+              select: {
+                school: { select: { name: true } }
+              }
+            }
+          },
+          orderBy: [{ reviewsReceived: { _count: "desc" } }, { name: "asc" }],
+          take: 4
+        }),
+        prisma.user.findMany({
+          where: {
+            role: "PROFESSOR",
+            name: { not: null },
+            ...(schoolId ? { schools: { some: { schoolId } } } : {})
+          },
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            _count: { select: { reviewsReceived: true } }
+          },
+          orderBy: [{ reviewsReceived: { _count: "desc" } }, { name: "asc" }],
+          take: 4
+        })
+      ])
+      : [null, [], [], []];
 
   return (
     <div className="home-shell">
@@ -175,8 +240,59 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
         <div className="search-page__results">
           {!query && <ResultsEmptyState message="Enter a search term to see results." />}
-          {query && schools.length === 0 && professors.length === 0 && courses.length === 0 && (
-            <ResultsEmptyState message="No matches yet. Try a different search." />
+          {noMatches && (
+            <>
+              <ResultsEmptyState message="No exact matches yet. Try one of these options." />
+              <section className="search-empty-panel">
+                <div className="search-empty-panel__block">
+                  <h2>Suggested alternatives</h2>
+                  <div className="search-empty-panel__chips">
+                    {similarSchools.map((school) => (
+                      <Link key={school.id} className="search-empty-chip" href={`/search?q=${encodeURIComponent(school.name)}`}>
+                        {school.name}
+                      </Link>
+                    ))}
+                    {similarProfessors.map((professor) => (
+                      <Link
+                        key={professor.id}
+                        className="search-empty-chip"
+                        href={`/search?q=${encodeURIComponent(professor.name ?? "")}`}
+                      >
+                        {professor.name ?? "Professor"}
+                      </Link>
+                    ))}
+                    {similarSchools.length === 0 && similarProfessors.length === 0 && (
+                      <>
+                        <Link className="search-empty-chip" href="/top-professors">
+                          Browse top professors
+                        </Link>
+                        <Link className="search-empty-chip" href="/top-schools">
+                          Browse top schools
+                        </Link>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                <div className="search-empty-panel__block">
+                  <h2>
+                    {selectedSchool
+                      ? `Popular professors at ${selectedSchool.name}`
+                      : "Popular professors this week"}
+                  </h2>
+                  <ul className="search-empty-panel__list">
+                    {fallbackProfessors.map((professor) => (
+                      <li key={professor.id}>
+                        <Link className="inline-link" href={`/professor/${professor.slug ?? slugify(professor.name ?? professor.id)}`}>
+                          {professor.name ?? "Unknown professor"}
+                        </Link>
+                        <span>{professor._count.reviewsReceived} reviews</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </section>
+            </>
           )}
           {schools.length > 0 && (
             <ResultsSection title="Schools">

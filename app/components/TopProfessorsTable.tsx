@@ -20,18 +20,20 @@ export default function TopProfessorsTable({
 }) {
   return (
     <div className="ranking-table">
-      <div className="ranking-row ranking-row--header">
-        <span>Rank</span>
-        <span>Professor</span>
-        <span>School</span>
-        <span>Score</span>
-        <span>Reviews</span>
+      <div className="ranking-row ranking-row--header ranking-row--professor-header">
+        <span className="ranking-cell ranking-cell--rank">Rank</span>
+        <span className="ranking-cell ranking-cell--professor">Professor</span>
+        <span className="ranking-cell ranking-cell--school">School</span>
+        <span className="ranking-cell ranking-cell--score">Score</span>
+        <span className="ranking-cell ranking-cell--reviews">Reviews</span>
       </div>
       {items.length === 0 && <div className="ranking-empty">No reviews yet.</div>}
       {items.map((item) => (
-        <div key={item.id} className="ranking-row">
-          <span>#{item.rank}</span>
-          <span>
+        <div key={item.id} className="ranking-row ranking-row--professor">
+          <span className="ranking-cell ranking-cell--rank" data-label="Rank">
+            #{item.rank}
+          </span>
+          <span className="ranking-cell ranking-cell--professor" data-label="Professor">
             {item.name ? (
               <Link
                 className="inline-link"
@@ -43,7 +45,7 @@ export default function TopProfessorsTable({
               "Unknown"
             )}
           </span>
-          <span>
+          <span className="ranking-cell ranking-cell--school" data-label="School">
             {item.schoolName && item.schoolSlug ? (
               <Link className="inline-link" href={`/school/${item.schoolSlug}`}>
                 {item.schoolName}
@@ -52,8 +54,12 @@ export default function TopProfessorsTable({
               "—"
             )}
           </span>
-          <span>{item.score ? item.score.toFixed(2) : "N/A"}</span>
-          <span>{item.reviewCount}</span>
+          <span className="ranking-cell ranking-cell--score" data-label="Score">
+            {item.score ? item.score.toFixed(2) : "N/A"}
+          </span>
+          <span className="ranking-cell ranking-cell--reviews" data-label="Reviews">
+            {item.reviewCount}
+          </span>
         </div>
       ))}
     </div>
