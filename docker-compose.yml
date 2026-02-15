@@ -1,13 +1,12 @@
 services:
   classrack-11249-db:
     image: postgres:16
-    container_name: classrack-11249-db
     environment:
       POSTGRES_USER: classrack
       POSTGRES_PASSWORD: classrack
       POSTGRES_DB: classrack
     ports:
-      - "5435:5432"
+      - "5432:5432"
     volumes:
       - classrack-11249-pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -18,15 +17,14 @@ services:
 
   classrack-11249-web:
     build: .
-    container_name: classrack-11249-web
     ports:
-      - "3003:3000"
-      - "5558:5555"
+      - "3000:3000"
+      - "5555:5555"
     environment:
       DATABASE_URL: postgresql://classrack:classrack@classrack-11249-db:5432/classrack
-      AUTH_URL: http://localhost:3003
-      NEXTAUTH_URL: http://localhost:3003
-      NEXT_PUBLIC_SITE_URL: http://localhost:3003
+      AUTH_URL: http://localhost:3000
+      NEXTAUTH_URL: http://localhost:3000
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
       AUTH_SECRET: ${AUTH_SECRET}
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
       OPENAI_API_KEY: ${OPENAI_API_KEY}

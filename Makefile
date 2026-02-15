@@ -1,13 +1,13 @@
 .PHONY: migrate seed db-reset dev
 
 migrate:
-	docker compose exec web npx prisma migrate deploy
+	docker compose exec classrack-11249-web npx prisma migrate deploy
 
 seed:
-	docker compose exec web node prisma/seed.js
+	docker compose exec classrack-11249-web node prisma/seed.js
 
 db-reset:
-	docker compose exec web npx prisma migrate reset --force
+	docker compose exec classrack-11249-web npx prisma migrate reset --force
 
 dev:
 	docker compose up --build -d

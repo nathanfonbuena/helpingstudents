@@ -79,16 +79,21 @@ const comDomains = [
 
 async function main() {
   // ── Cleanup ──────────────────────────────────────────────────────────────────
+  // Delete dependent records before parent rows to avoid FK violations when reseeding.
   await prisma.courseMetadata.deleteMany();
   await prisma.reviewSummary.deleteMany();
   await prisma.professorProfile.deleteMany();
   await prisma.verificationStatus.deleteMany();
-  await prisma.reviewResponse.deleteMany();
-  await prisma.review.deleteMany();
-  await prisma.material.deleteMany();
   await prisma.reviewView.deleteMany();
+  await prisma.reviewVote.deleteMany();
+  await prisma.reviewResponse.deleteMany();
+  await prisma.schoolReviewVote.deleteMany();
+  await prisma.schoolReview.deleteMany();
+  await prisma.review.deleteMany();
   await prisma.materialView.deleteMany();
   await prisma.materialSave.deleteMany();
+  await prisma.material.deleteMany();
+  await prisma.professorProfileView.deleteMany();
   await prisma.savedCourse.deleteMany();
   await prisma.notification.deleteMany();
   await prisma.scheduleEntry.deleteMany();

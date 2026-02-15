@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 interface Suggestion {
   id: string;
@@ -15,6 +16,7 @@ interface Suggestion {
 interface SearchBoxProps {
   initialQuery?: string;
   action?: string;
+  directProfessorNavigation?: boolean;
   filters?: {
     schoolId?: string;
     departmentId?: string;
@@ -25,15 +27,22 @@ interface SearchBoxProps {
 export default function SearchBox({
   initialQuery = "",
   action = "/search",
+  directProfessorNavigation = false,
   filters
 }: SearchBoxProps) {
   const router = useRouter();
+  const { data: session } = useSession();
   const formRef = useRef<HTMLFormElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [query, setQuery] = useState(initialQuery);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const storageKey = useMemo(
+    () => `recent-searches:v1:${session?.user?.id ?? "guest"}`,
+    [session?.user?.id]
+  );
 
   const paramsString = useMemo(() => {
     const params = new URLSearchParams();
@@ -42,6 +51,20 @@ export default function SearchBox({
     if (filters?.tagId) params.set("tagId", filters.tagId);
     return params.toString();
   }, [filters?.schoolId, filters?.departmentId, filters?.tagId]);
+
+  useEffect(() => {
+    const raw = window.localStorage.getItem(storageKey);
+    if (!raw) {
+      setRecentSearches([]);
+      return;
+    }
+    try {
+      const parsed = JSON.parse(raw) as string[];
+      setRecentSearches(Array.isArray(parsed) ? parsed.slice(0, 5) : []);
+    } catch {
+      setRecentSearches([]);
+    }
+  }, [storageKey]);
 
   useEffect(() => {
     if (query.trim().length < 2) {
@@ -89,15 +112,38 @@ export default function SearchBox({
     return () => window.clearTimeout(handle);
   }, [query]);
 
+  const pushRecentSearch = (value: string) => {
+    const normalized = value.trim();
+    if (!normalized) return;
+    setRecentSearches((prev) => {
+      const merged = [normalized, ...prev.filter((item) => item.toLowerCase() !== normalized.toLowerCase())].slice(
+        0,
+        5
+      );
+      window.localStorage.setItem(storageKey, JSON.stringify(merged));
+      return merged;
+    });
+  };
+
   const submitQuery = (value: string) => {
+    const normalized = value.trim();
+    if (!normalized) return;
+    pushRecentSearch(normalized);
     const params = new URLSearchParams(paramsString);
-    params.set("q", value);
+    params.set("q", normalized);
     router.push(`${action}?${params.toString()}`);
   };
 
   const handleSuggestionClick = (item: Suggestion) => {
     if (item.type === "school" && item.slug) {
+      pushRecentSearch(item.name);
       router.push(`/school/${item.slug}`);
+      return;
+    }
+
+    if (item.type === "professor" && directProfessorNavigation && item.slug) {
+      pushRecentSearch(item.name);
+      router.push(`/professor/${item.slug}`);
       return;
     }
 
@@ -143,7 +189,9 @@ export default function SearchBox({
           aria-label="Search by school or professor"
           autoComplete="off"
           onFocus={() => {
-            if (suggestions.length > 0) setOpen(true);
+            if (suggestions.length > 0 || recentSearches.length > 0 || query.trim().length >= 2) {
+              setOpen(true);
+            }
           }}
           onBlur={() => {
             window.setTimeout(() => setOpen(false), 150);
@@ -179,6 +227,28 @@ export default function SearchBox({
                 </span>
               </button>
             ))}
+        </div>
+      )}
+      {open && !loading && suggestions.length === 0 && query.trim().length < 2 && recentSearches.length > 0 && (
+        <div className="search__suggestions" role="listbox">
+          <div className="search__suggestion search__suggestion--empty">Recent searches</div>
+          {recentSearches.map((term) => (
+            <button
+              key={term}
+              type="button"
+              className="search__suggestion"
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => {
+                setQuery(term);
+                submitQuery(term);
+              }}
+            >
+              <span className="search__suggestion-main">
+                <span className="search__suggestion-title">{term}</span>
+              </span>
+              <span className="search__suggestion-type">Recent</span>
+            </button>
+          ))}
         </div>
       )}
       {open && !loading && suggestions.length === 0 && query.trim().length >= 2 && (

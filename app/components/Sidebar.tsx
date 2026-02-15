@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import type { Session } from "next-auth";
 
@@ -77,10 +77,16 @@ const navItems = [
 ];
 
 export default function Sidebar() {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const { status, data: session } = useSession();
   const isAuthed = status === "authenticated";
   const isProfessor = (session as Session & { user?: { role?: string } })?.user?.role === "PROFESSOR";
+
+  useEffect(() => {
+    if (window.innerWidth > 900) {
+      setOpen(true);
+    }
+  }, []);
 
   return (
     <aside className={open ? "sidebar is-open" : "sidebar"}>
@@ -91,11 +97,11 @@ export default function Sidebar() {
           onClick={() => setOpen((value) => !value)}
           aria-expanded={open}
           aria-controls="sidebar-nav"
+          aria-label={open ? "Close menu" : "Open menu"}
         >
           <span className="sidebar__toggle-icon" aria-hidden="true">
-            {open ? "←" : "→"}
+            {open ? "✕" : "☰"}
           </span>
-          <span className="sidebar__toggle-text">Menu</span>
         </button>
       </div>
       <nav id="sidebar-nav" className="sidebar__nav" aria-label="Primary">
@@ -138,7 +144,7 @@ export default function Sidebar() {
             <a className="sidebar__action sidebar__action--ghost" href="/login">
               Log in
             </a>
-            <a className="sidebar__action sidebar__action--ghost sidebar__action--professor" href="/signup/professor">
+            <a className="sidebar__action sidebar__action--ghost" href="/signup/professor">
               Faculty sign up
             </a>
           </>
