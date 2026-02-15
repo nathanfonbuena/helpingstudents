@@ -1,4 +1,14 @@
 [
-  { "id": "note-1", "message": "New upload added for ECON 101" },
-  { "id": "note-2", "message": "Your upload got new saves" }
+  {
+    "id": "note-1",
+    "type": "new_material",
+    "message": "New upload added for ECON 101",
+    "destination": "/professor/dr-chen#materials"
+  },
+  {
+    "id": "note-2",
+    "type": "new_review",
+    "message": "A new review was posted for Dr. Chen",
+    "destination": "/professor/dr-chen#reviews"
+  }
 ]

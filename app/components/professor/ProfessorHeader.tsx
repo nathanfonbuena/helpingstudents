@@ -1,6 +1,7 @@
 import Link from "next/link";
 import FollowButton from "@/app/components/FollowButton";
 import ReviewModalTrigger from "@/app/components/ReviewModalTrigger";
+import CompareToggleButton from "@/app/components/compare/CompareToggleButton";
 
 interface ProfessorHeaderProps {
   name: string;
@@ -105,6 +106,13 @@ export default function ProfessorHeader({
             professorName={name}
             professorSlug={professorSlug}
             defaultOpen={defaultOpenReview}
+          />
+          <CompareToggleButton
+            professorId={professorId}
+            professorName={name}
+            professorSlug={professorSlug}
+            source="profile"
+            className="btn btn--ghost btn--sm"
           />
           {isOwner && (
             <Link href="/professor-portal" className="btn btn--outline btn--sm">

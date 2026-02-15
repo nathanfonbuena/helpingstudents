@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import SearchBox from "@/app/components/SearchBox";
@@ -8,7 +7,7 @@ import ProfessorResultCard from "@/app/components/search/ProfessorResultCard";
 import CourseResultCard from "@/app/components/search/CourseResultCard";
 import ResultsSection from "@/app/components/search/ResultsSection";
 import ResultsEmptyState from "@/app/components/search/ResultsEmptyState";
-import { slugify } from "@/app/lib/slug";
+import SearchEmptyAlternatives from "@/app/components/search/SearchEmptyAlternatives";
 
 interface SearchPageProps {
   searchParams?: {
@@ -243,55 +242,20 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           {noMatches && (
             <>
               <ResultsEmptyState message="No exact matches yet. Try one of these options." />
-              <section className="search-empty-panel">
-                <div className="search-empty-panel__block">
-                  <h2>Suggested alternatives</h2>
-                  <div className="search-empty-panel__chips">
-                    {similarSchools.map((school) => (
-                      <Link key={school.id} className="search-empty-chip" href={`/search?q=${encodeURIComponent(school.name)}`}>
-                        {school.name}
-                      </Link>
-                    ))}
-                    {similarProfessors.map((professor) => (
-                      <Link
-                        key={professor.id}
-                        className="search-empty-chip"
-                        href={`/search?q=${encodeURIComponent(professor.name ?? "")}`}
-                      >
-                        {professor.name ?? "Professor"}
-                      </Link>
-                    ))}
-                    {similarSchools.length === 0 && similarProfessors.length === 0 && (
-                      <>
-                        <Link className="search-empty-chip" href="/top-professors">
-                          Browse top professors
-                        </Link>
-                        <Link className="search-empty-chip" href="/top-schools">
-                          Browse top schools
-                        </Link>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                <div className="search-empty-panel__block">
-                  <h2>
-                    {selectedSchool
-                      ? `Popular professors at ${selectedSchool.name}`
-                      : "Popular professors this week"}
-                  </h2>
-                  <ul className="search-empty-panel__list">
-                    {fallbackProfessors.map((professor) => (
-                      <li key={professor.id}>
-                        <Link className="inline-link" href={`/professor/${professor.slug ?? slugify(professor.name ?? professor.id)}`}>
-                          {professor.name ?? "Unknown professor"}
-                        </Link>
-                        <span>{professor._count.reviewsReceived} reviews</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </section>
+              <SearchEmptyAlternatives
+                selectedSchoolName={selectedSchool?.name}
+                similarSchools={similarSchools}
+                similarProfessors={similarProfessors.map((professor) => ({
+                  id: professor.id,
+                  name: professor.name
+                }))}
+                fallbackProfessors={fallbackProfessors.map((professor) => ({
+                  id: professor.id,
+                  name: professor.name,
+                  slug: professor.slug,
+                  reviewCount: professor._count.reviewsReceived
+                }))}
+              />
             </>
           )}
           {schools.length > 0 && (
@@ -313,7 +277,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           {professors.length > 0 && (
             <ResultsSection title="Professors">
               {professors.map((professor) => (
-                <ProfessorResultCard key={professor.id} id={professor.id} name={professor.name} />
+                <ProfessorResultCard
+                  key={professor.id}
+                  id={professor.id}
+                  name={professor.name}
+                  slug={professor.slug}
+                />
               ))}
             </ResultsSection>
           )}

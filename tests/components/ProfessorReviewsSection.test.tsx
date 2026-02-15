@@ -19,6 +19,9 @@ describe("ProfessorReviewsSection", () => {
         professorName="Dr. Chen"
         professorSlug="dr-chen"
         defaultOpenReview={false}
+        reviewSort="recent"
+        reviewPage={1}
+        totalReviewPages={1}
         reviews={[
           {
             id: "rev-1",
@@ -44,5 +47,46 @@ describe("ProfessorReviewsSection", () => {
     );
 
     expect(screen.getByText("Great class")).toBeInTheDocument();
+  });
+
+  it("keeps review sort in pagination URLs", () => {
+    render(
+      <ProfessorReviewsSection
+        professorId="prof-1"
+        professorName="Dr. Chen"
+        professorSlug="dr-chen"
+        defaultOpenReview={false}
+        reviewSort="helpful"
+        reviewPage={1}
+        totalReviewPages={2}
+        reviews={[
+          {
+            id: "rev-1",
+            rating: 4,
+            difficulty: 3,
+            expertise: 4,
+            enjoyability: 4,
+            clarity: 4,
+            helpfulUp: 2,
+            helpfulDown: 0,
+            wouldTakeAgain: true,
+            forCredit: true,
+            attendanceMandatory: false,
+            textbookRequired: false,
+            onlineClass: false,
+            grade: "A",
+            body: "Great class",
+            createdAt: new Date(),
+            studentName: "Alex",
+            isVerified: true
+          }
+        ]}
+      />
+    );
+
+    const nextLink = screen.getByRole("link", { name: "Next" });
+    expect(nextLink).toHaveAttribute("href", "/professor/dr-chen?reviewPage=2&reviewSort=helpful#reviews");
+    expect(screen.getByText("Verified student")).toBeInTheDocument();
+    expect(screen.getByText("2 helpful votes")).toBeInTheDocument();
   });
 });

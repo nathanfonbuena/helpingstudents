@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { trackEvent } from "@/app/lib/analytics";
 
 interface Suggestion {
   id: string;
@@ -32,6 +33,7 @@ export default function SearchBox({
 }: SearchBoxProps) {
   const router = useRouter();
   const { data: session } = useSession();
+  const userId = session?.user?.id ?? null;
   const formRef = useRef<HTMLFormElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [query, setQuery] = useState(initialQuery);
@@ -40,8 +42,8 @@ export default function SearchBox({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const storageKey = useMemo(
-    () => `recent-searches:v1:${session?.user?.id ?? "guest"}`,
-    [session?.user?.id]
+    () => `recent-searches:v1:${userId ?? "guest"}`,
+    [userId]
   );
 
   const paramsString = useMemo(() => {
@@ -65,6 +67,39 @@ export default function SearchBox({
       setRecentSearches([]);
     }
   }, [storageKey]);
+
+  useEffect(() => {
+    if (!userId) return;
+
+    const controller = new AbortController();
+
+    void fetch("/api/search/recent", {
+      signal: controller.signal
+    })
+      .then(async (response) => {
+        if (!response.ok) return;
+        const payload = (await response.json()) as { recent?: string[] };
+        const fromServer = Array.isArray(payload.recent) ? payload.recent : [];
+        if (fromServer.length === 0) return;
+
+        setRecentSearches((prev) => {
+          const merged = [...prev];
+          for (const item of fromServer) {
+            if (!merged.some((term) => term.toLowerCase() === item.toLowerCase())) {
+              merged.push(item);
+            }
+          }
+          const next = merged.slice(0, 5);
+          window.localStorage.setItem(storageKey, JSON.stringify(next));
+          return next;
+        });
+      })
+      .catch(() => {
+        // Ignore background sync failures.
+      });
+
+    return () => controller.abort();
+  }, [storageKey, userId]);
 
   useEffect(() => {
     if (query.trim().length < 2) {
@@ -123,6 +158,16 @@ export default function SearchBox({
       window.localStorage.setItem(storageKey, JSON.stringify(merged));
       return merged;
     });
+
+    if (userId) {
+      void fetch("/api/search/recent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: normalized })
+      }).catch(() => {
+        // Ignore background sync failures.
+      });
+    }
   };
 
   const submitQuery = (value: string) => {
@@ -238,7 +283,8 @@ export default function SearchBox({
               type="button"
               className="search__suggestion"
               onMouseDown={(event) => event.preventDefault()}
-              onClick={() => {
+            onClick={() => {
+                trackEvent("search_recent_click", { term });
                 setQuery(term);
                 submitQuery(term);
               }}

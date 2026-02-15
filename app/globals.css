@@ -760,6 +760,19 @@ a {
   font-size: 0.9rem;
 }
 
+.result-card--professor {
+  gap: 12px;
+}
+
+.result-card--professor > a {
+  display: grid;
+  gap: 6px;
+}
+
+.result-card__compare {
+  justify-self: start;
+}
+
 .result-card--course {
   display: flex;
   justify-content: space-between;
@@ -944,12 +957,17 @@ a {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
   gap: 24px;
+  align-items: start;
 }
 
 .professor-main,
 .professor-side {
   display: grid;
   gap: 20px;
+}
+
+.professor-side {
+  align-content: start;
 }
 
 .professor-section {
@@ -1135,6 +1153,33 @@ a {
   gap: 14px;
 }
 
+.review-sort-controls {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.review-sort-button {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--panel-border);
+  background: #fff;
+  color: var(--ink-600);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.review-sort-button:hover {
+  border-color: rgba(15, 107, 72, 0.25);
+  color: var(--accent);
+  background: #f4fbf7;
+}
+
+.review-sort-button--active {
+  border-color: rgba(15, 107, 72, 0.35);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
 .empty-panel {
   border: 1px dashed var(--panel-border);
   border-radius: 16px;
@@ -1160,6 +1205,9 @@ a {
 .review-card__header h3 {
   margin: 0 0 4px;
   font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .review-card__header p {
@@ -1180,6 +1228,24 @@ a {
 .review-card__body {
   margin: 12px 0;
   color: var(--ink-700);
+}
+
+.review-card__signals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.review-signal {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #eef3ef;
+  color: var(--ink-600);
+  font-size: 0.76rem;
+  font-weight: 600;
 }
 
 .review-card__metrics {
@@ -1736,6 +1802,48 @@ a {
   color: var(--ink-600);
 }
 
+.notification-groups {
+  display: grid;
+  gap: 16px;
+}
+
+.notification-group {
+  display: grid;
+  gap: 10px;
+}
+
+.notification-group h3 {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--ink-500);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.notification-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: #f8faf8;
+  color: var(--ink-700);
+}
+
+.notification-link:hover {
+  border-color: rgba(15, 107, 72, 0.2);
+  background: #f4fbf7;
+  color: var(--accent);
+}
+
+.notification-link time {
+  font-size: 0.78rem;
+  color: var(--ink-500);
+  white-space: nowrap;
+}
+
 .saved-list {
   display: grid;
   gap: 8px;
@@ -2105,7 +2213,7 @@ a {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  align-items: flex-start;
+  align-items: stretch;
 }
 
 .panel h3 {
@@ -2136,6 +2244,7 @@ a {
   background: #f8faf8;
   color: var(--ink-700);
   font-size: 0.9rem;
+  width: 100%;
 }
 
 .panel__list strong {
@@ -2259,9 +2368,38 @@ a {
   background: #fff;
 }
 
+.ranking-explain-trigger {
+  border: 1px solid var(--panel-border);
+  background: #fff;
+  color: var(--ink-700);
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ranking-explain-trigger:hover {
+  border-color: rgba(15, 107, 72, 0.25);
+  color: var(--accent);
+  background: #f4fbf7;
+}
+
 .ranking-table {
   display: grid;
   gap: 12px;
+}
+
+.ranking-professor-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ranking-compare-btn {
+  padding: 4px 10px;
+  font-size: 0.74rem;
 }
 
 .ranking-row {
@@ -2290,6 +2428,244 @@ a {
 
 .ranking-row--header span {
   font-weight: 600;
+}
+
+.ranking-reviews-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ranking-confidence {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+.ranking-confidence--high {
+  background: #e7f4ec;
+  border-color: rgba(15, 107, 72, 0.18);
+  color: #0f6b48;
+}
+
+.ranking-confidence--medium {
+  background: #eff3f8;
+  border-color: rgba(53, 88, 140, 0.18);
+  color: #2f568b;
+}
+
+.ranking-confidence--low {
+  background: #f7f0e8;
+  border-color: rgba(120, 84, 36, 0.18);
+  color: #7a4f1f;
+}
+
+.ranking-explain-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+
+.ranking-explain-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(18, 25, 21, 0.42);
+}
+
+.ranking-explain-modal__card {
+  position: relative;
+  width: min(520px, 100%);
+  background: #fff;
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 18px;
+  display: grid;
+  gap: 10px;
+}
+
+.ranking-explain-modal__card h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.ranking-explain-modal__card p {
+  margin: 0;
+  color: var(--ink-600);
+  line-height: 1.45;
+}
+
+.compare-main {
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.compare-page {
+  padding: 72px 28px 104px;
+  display: grid;
+  gap: 20px;
+}
+
+.compare-page__header h1 {
+  margin: 0 0 8px;
+  font-family: var(--font-serif), serif;
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+}
+
+.compare-page__header p {
+  margin: 0;
+  color: var(--ink-500);
+}
+
+.compare-empty {
+  border: 1px dashed var(--panel-border);
+  border-radius: 16px;
+  padding: 20px;
+  background: #fff;
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}
+
+.compare-empty p {
+  margin: 0;
+  color: var(--ink-500);
+}
+
+.compare-loading {
+  margin: 0;
+  color: var(--ink-500);
+}
+
+.compare-table {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 12px;
+}
+
+.compare-card {
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  padding: 14px;
+  background: #fff;
+  display: grid;
+  gap: 12px;
+}
+
+.compare-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.compare-card__header h2 {
+  margin: 0 0 4px;
+  font-size: 1rem;
+}
+
+.compare-card__header p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--ink-500);
+}
+
+.compare-metrics {
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.compare-metrics div {
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  background: #f8faf8;
+  padding: 8px 10px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.compare-metrics dt {
+  font-size: 0.82rem;
+  color: var(--ink-500);
+}
+
+.compare-metrics dd {
+  margin: 0;
+  color: var(--ink-900);
+  font-weight: 600;
+}
+
+.compare-tray {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 14px;
+  z-index: 45;
+  width: min(980px, calc(100% - 20px));
+  background: rgba(18, 25, 21, 0.95);
+  color: #f2f6f3;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 10px 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.compare-tray__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.compare-tray__clear {
+  border: 0;
+  background: transparent;
+  color: #d8e6dd;
+  font-size: 0.82rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.compare-tray__items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.compare-tray__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  padding: 4px 10px;
+  font-size: 0.82rem;
+}
+
+.compare-tray__item button {
+  border: 0;
+  background: transparent;
+  color: #f2f6f3;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+}
+
+.compare-tray__view {
+  justify-self: end;
 }
 
 .ranking-empty {
@@ -2364,7 +2740,8 @@ a {
 
   .ranking-controls label,
   .ranking-controls select,
-  .ranking-controls .pagination__link {
+  .ranking-controls .pagination__link,
+  .ranking-controls .ranking-explain-trigger {
     width: 100%;
   }
 
@@ -2472,6 +2849,37 @@ a {
     color: var(--accent);
     font-weight: 700;
   }
+
+  .ranking-professor-cell {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .compare-page {
+    padding: 56px 16px 100px;
+    gap: 14px;
+  }
+
+  .compare-table {
+    grid-template-columns: 1fr;
+  }
+
+  .compare-card {
+    padding: 12px;
+  }
+
+  .compare-tray {
+    width: calc(100% - 12px);
+    bottom: 6px;
+    border-radius: 12px;
+    padding: 10px;
+  }
+
+  .compare-tray__view {
+    width: 100%;
+    justify-self: stretch;
+  }
 }
 
 @media (max-width: 1100px) {
@@ -2512,10 +2920,11 @@ a {
   .mobile-professor-actions {
     display: flex;
     position: sticky;
-    bottom: 8px;
+    top: 72px;
     z-index: 25;
     gap: 8px;
     padding: 8px;
+    margin-bottom: 8px;
     border-radius: 14px;
     background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(10px);

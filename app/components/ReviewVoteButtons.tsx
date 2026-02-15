@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { trackEvent } from "@/app/lib/analytics";
 
 interface ReviewVoteButtonsProps {
   reviewId: string;
@@ -22,6 +23,10 @@ export default function ReviewVoteButtons({
   const submitVote = async (vote: "up" | "down") => {
     if (loading) return;
 
+    trackEvent("review_helpful_vote", {
+      vote_type: vote === "up" ? "helpful" : "not_helpful",
+      review_id: reviewId
+    });
     setLoading(true);
     setMessage(null);
     const previousVote = currentVote;

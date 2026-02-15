@@ -2,6 +2,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import Sidebar from "@/app/components/Sidebar";
 import { Prisma } from "@prisma/client";
+import RankingConfidenceBadge from "@/app/components/ranking/RankingConfidenceBadge";
+import RankingExplainability from "@/app/components/ranking/RankingExplainability";
 
 const PAGE_SIZE = 15;
 const RATING_WEIGHT = 8;
@@ -24,7 +26,7 @@ interface TopSchoolsPageProps {
 }
 
 export default async function TopSchoolsPage({ searchParams }: TopSchoolsPageProps) {
-  const sort =
+  const sort: "score" | "rating" | "reviews" =
     searchParams?.sort === "score" || searchParams?.sort === "reviews"
       ? searchParams.sort
       : "rating";
@@ -139,6 +141,7 @@ export default async function TopSchoolsPage({ searchParams }: TopSchoolsPagePro
             <button type="submit" className="pagination__link">
               Apply
             </button>
+            <RankingExplainability rankingType="schools" sort={sort} />
           </form>
 
           <div className="ranking-table">
@@ -165,7 +168,14 @@ export default async function TopSchoolsPage({ searchParams }: TopSchoolsPagePro
                   {school.average_rating ? school.average_rating.toFixed(2) : "N/A"}
                 </span>
                 <span className="ranking-cell ranking-cell--reviews" data-label="Reviews">
-                  {school.review_count}
+                  <span className="ranking-reviews-cell">
+                    <span>{school.review_count}</span>
+                    <RankingConfidenceBadge
+                      entityType="school"
+                      entityId={school.id}
+                      reviewCount={school.review_count}
+                    />
+                  </span>
                 </span>
               </div>
             ))}

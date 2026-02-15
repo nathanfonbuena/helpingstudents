@@ -15,6 +15,8 @@ import NotificationsCard from "@/app/components/account/NotificationsCard";
 import VerifyEduEmailForm from "@/app/components/VerifyEduEmailForm";
 import VerifiedBadge from "@/app/components/VerifiedBadge";
 
+type AccountNotificationType = "new_review" | "new_material" | "ranking_change";
+
 export default async function AccountPage() {
   const session = await auth();
   const userId = session?.user?.id;
@@ -25,7 +27,7 @@ export default async function AccountPage() {
 
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-  const [user, schools, materialsAuthored, scheduleEntries, savedCourses, follows, notifications] =
+  const [user, schools, materialsAuthored, scheduleEntries, savedCourses, follows] =
     await Promise.all([
       prisma.user.findUnique({
         where: { id: userId },
@@ -112,11 +114,6 @@ export default async function AccountPage() {
             }
           }
         }
-      }),
-      prisma.notification.findMany({
-        where: { userId },
-        orderBy: { createdAt: "desc" },
-        take: 5
       })
     ]);
 
@@ -264,6 +261,9 @@ export default async function AccountPage() {
 
   const savedProfessorIds = savedProfessorList.map((professor) => professor.id);
   const savedCourseIds = savedCourseList.map((course) => course.id);
+  const trackedCourseIds = Array.from(
+    new Set([...savedCourseIds, ...scheduleEntries.map((entry) => entry.course.id)])
+  );
 
   const newUploadsCount =
     savedProfessorIds.length || savedCourseIds.length
@@ -329,6 +329,113 @@ export default async function AccountPage() {
         take: 3
       })
       : [];
+
+  const [recentReviewsOnSavedProfessors, recentMaterialsOnTrackedCourses, rankingMovers] =
+    await Promise.all([
+      savedProfessorIds.length
+        ? prisma.review.findMany({
+          where: {
+            professorId: { in: savedProfessorIds },
+            createdAt: { gte: weekAgo }
+          },
+          select: {
+            id: true,
+            createdAt: true,
+            professor: { select: { id: true, name: true, slug: true } }
+          },
+          orderBy: { createdAt: "desc" },
+          take: 8
+        })
+        : Promise.resolve([]),
+      trackedCourseIds.length
+        ? prisma.material.findMany({
+          where: {
+            status: "APPROVED",
+            courseId: { in: trackedCourseIds },
+            createdAt: { gte: weekAgo }
+          },
+          select: {
+            id: true,
+            title: true,
+            createdAt: true,
+            course: { select: { id: true, name: true, courseNumber: true } },
+            professor: { select: { id: true, name: true, slug: true } }
+          },
+          orderBy: { createdAt: "desc" },
+          take: 8
+        })
+        : Promise.resolve([]),
+      prisma.review.groupBy({
+        by: ["professorId"],
+        where: { createdAt: { gte: weekAgo } },
+        _count: { professorId: true },
+        orderBy: { _count: { professorId: "desc" } },
+        take: 3
+      })
+    ]);
+
+  const rankingProfessorIds = rankingMovers.map((item) => item.professorId);
+  const rankingProfessorLookup =
+    rankingProfessorIds.length > 0
+      ? new Map(
+        (
+          await prisma.user.findMany({
+            where: { id: { in: rankingProfessorIds } },
+            select: { id: true, name: true, slug: true }
+          })
+        ).map((professor) => [professor.id, professor])
+      )
+      : new Map();
+
+  const notificationFeed: Array<{
+    id: string;
+    type: AccountNotificationType;
+    message: string;
+    destination: string;
+    createdAt: Date;
+  }> = [
+    ...recentReviewsOnSavedProfessors.map((review) => {
+      const professorName = review.professor?.name ?? "A professor";
+      const professorSlug = review.professor?.slug ?? slugify(professorName);
+      return {
+        id: `review-${review.id}`,
+        type: "new_review" as const,
+        message: `New review posted for ${professorName}.`,
+        destination: `/professor/${professorSlug}#reviews`,
+        createdAt: review.createdAt
+      };
+    }),
+    ...recentMaterialsOnTrackedCourses.map((material) => {
+      const professorName = material.professor?.name ?? "Professor";
+      const professorSlug = material.professor?.slug ?? (material.professor?.name ? slugify(material.professor.name) : "");
+      const courseLabel = material.course
+        ? `${material.course.courseNumber} ${material.course.name}`
+        : "a tracked course";
+      const destination = professorSlug
+        ? `/professor/${professorSlug}#materials`
+        : `/search?q=${encodeURIComponent(material.title)}`;
+      return {
+        id: `material-${material.id}`,
+        type: "new_material" as const,
+        message: `New material in ${courseLabel}: ${material.title}.`,
+        destination,
+        createdAt: material.createdAt
+      };
+    }),
+    ...rankingMovers.map((mover) => {
+      const professor = rankingProfessorLookup.get(mover.professorId);
+      const name = professor?.name ?? "A professor";
+      return {
+        id: `rank-${mover.professorId}`,
+        type: "ranking_change" as const,
+        message: `${name} is trending with ${mover._count.professorId} new reviews this week.`,
+        destination: "/top-professors?sort=reviews",
+        createdAt: new Date()
+      };
+    })
+  ]
+    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    .slice(0, 15);
 
   return (
     <div className="home-shell">
@@ -475,11 +582,7 @@ export default async function AccountPage() {
         />
 
         <NotificationsCard
-          notifications={notifications.map((notification) => ({
-            id: notification.id,
-            message: notification.message,
-            createdAt: notification.createdAt
-          }))}
+          notifications={notificationFeed}
         />
       </main>
     </div>

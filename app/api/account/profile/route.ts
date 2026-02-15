@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { UserRole } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 export async function PATCH(request: Request) {
@@ -10,11 +11,12 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { name, schoolId, major, year } = (await request.json()) as {
+  const { name, schoolId, major, year, role } = (await request.json()) as {
     name?: string;
     schoolId?: string;
     major?: string;
     year?: string;
+    role?: UserRole;
   };
 
   const normalizedMajor = major?.trim() || null;
@@ -31,23 +33,47 @@ export async function PATCH(request: Request) {
     }
   }
 
+  const currentUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true }
+  });
+
+  if (!currentUser) {
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
+
+  const nextRole: UserRole =
+    role === "PROFESSOR" || role === "STUDENT" ? role : currentUser.role;
+
   await prisma.$transaction(async (tx) => {
     await tx.user.update({
       where: { id: userId },
       data: {
         name: name?.trim() || null,
         major: normalizedMajor,
-        year: normalizedYear
+        year: normalizedYear,
+        role: nextRole
       }
     });
 
     await tx.userSchool.deleteMany({
-      where: { userId, role: "STUDENT" }
+      where: {
+        userId,
+        role: { in: ["STUDENT", "PROFESSOR"] }
+      }
     });
 
     if (schoolId) {
       await tx.userSchool.create({
-        data: { userId, schoolId, role: "STUDENT" }
+        data: { userId, schoolId, role: nextRole }
+      });
+    }
+
+    if (nextRole === "PROFESSOR") {
+      await tx.professorProfile.upsert({
+        where: { professorId: userId },
+        update: {},
+        create: { professorId: userId, isClaimed: false }
       });
     }
   });

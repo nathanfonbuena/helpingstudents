@@ -9,12 +9,14 @@ interface FollowButtonProps {
   professorId: string;
   professorSlug: string;
   initialFollowing: boolean;
+  onClick?: () => void;
 }
 
 export default function FollowButton({
   professorId,
   professorSlug,
-  initialFollowing
+  initialFollowing,
+  onClick
 }: FollowButtonProps) {
   const router = useRouter();
   const { status } = useSession();
@@ -23,6 +25,7 @@ export default function FollowButton({
   const [loading, setLoading] = useState(false);
 
   const toggleFollow = async () => {
+    onClick?.();
     if (status !== "authenticated") {
       router.push(`/login?callbackUrl=/professor/${professorSlug}`);
       return;

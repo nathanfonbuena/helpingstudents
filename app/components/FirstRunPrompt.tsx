@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 import SchoolAutocomplete from "@/app/components/SchoolAutocomplete";
+import { trackEvent } from "@/app/lib/analytics";
 
 interface FirstRunPromptProps {
   initialSchoolId?: string;
@@ -31,6 +32,7 @@ export default function FirstRunPrompt({
   const [schoolName, setSchoolName] = useState(initialSchoolName);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [viewTracked, setViewTracked] = useState(false);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -63,6 +65,15 @@ export default function FirstRunPrompt({
   }, [initialSchoolId, status, storageKey, userId]);
 
   useEffect(() => {
+    if (!open || viewTracked) return;
+    trackEvent("onboarding_prompt_view", {
+      step: step === 1 ? "role" : "school",
+      user_state: userId ? "signed_in" : "guest"
+    });
+    setViewTracked(true);
+  }, [open, step, userId, viewTracked]);
+
+  useEffect(() => {
     window.localStorage.setItem(
       FIRST_RUN_SELECTION_KEY,
       JSON.stringify({
@@ -77,6 +88,14 @@ export default function FirstRunPrompt({
     window.localStorage.setItem(storageKey, state);
     if (state === "completed") {
       window.localStorage.removeItem(FIRST_RUN_SELECTION_KEY);
+      trackEvent("onboarding_prompt_complete", {
+        role,
+        has_school: Boolean(schoolId)
+      });
+    } else {
+      trackEvent("onboarding_prompt_dismiss", {
+        step: step === 1 ? "role" : "school"
+      });
     }
     setOpen(false);
   };
@@ -86,7 +105,7 @@ export default function FirstRunPrompt({
     const response = await fetch("/api/account/profile", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ schoolId })
+      body: JSON.stringify({ schoolId, role })
     });
     if (!response.ok) {
       const payload = (await response.json().catch(() => ({}))) as { error?: string };

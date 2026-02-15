@@ -13,11 +13,15 @@ describe("NotificationsCard", () => {
       <NotificationsCard
         notifications={notifications.map((item) => ({
           id: item.id,
+          type: item.type as "new_review" | "new_material" | "ranking_change",
           message: item.message,
+          destination: item.destination,
           createdAt: new Date()
         }))}
       />
     );
+    expect(screen.getByText(/New materials/i)).toBeInTheDocument();
+    expect(screen.getByText(/New reviews/i)).toBeInTheDocument();
     expect(screen.getByText(/New upload/)).toBeInTheDocument();
   });
 });
