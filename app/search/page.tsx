@@ -67,6 +67,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               : {}),
             ...(tagId ? { tags: { some: { tagId } } } : {})
           },
+          select: {
+            id: true,
+            name: true,
+            slug: true
+          },
           take: 25,
           orderBy: { name: "asc" }
         })
