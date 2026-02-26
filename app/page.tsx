@@ -4,8 +4,10 @@ import { prisma } from "@/lib/prisma";
 import Sidebar from "./components/Sidebar";
 import SearchBox from "./components/SearchBox";
 import FirstRunPrompt from "./components/FirstRunPrompt";
+import NextBestActionCard from "./components/NextBestActionCard";
 import { firstByName } from "./lib/sortUtils";
 import { slugify } from "./lib/slug";
+import { getNextActionRecommendation } from "./lib/nextAction";
 
 export default async function HomePage() {
   const session = await auth();
@@ -18,6 +20,7 @@ export default async function HomePage() {
           where: { id: userId },
           select: {
             name: true,
+            verified: true,
             schools: {
               where: { role: "STUDENT" },
               select: {
@@ -33,7 +36,8 @@ export default async function HomePage() {
               select: {
                 savedCourses: true,
                 following: true,
-                reviewsWritten: true
+                reviewsWritten: true,
+                scheduleEntries: true
               }
             }
           }
@@ -119,6 +123,19 @@ export default async function HomePage() {
     ]);
 
   const primarySchool = profile?.schools[0]?.school;
+  const nextAction = profile
+    ? getNextActionRecommendation({
+      verified: profile.verified,
+      scheduleCount: profile._count.scheduleEntries,
+      followCount: profile._count.following,
+      reviewsWrittenCount: profile._count.reviewsWritten,
+      writeReviewHref: followedProfessors[0]?.following
+        ? `/professor/${followedProfessors[0].following.slug ?? slugify(followedProfessors[0].following.name ?? followedProfessors[0].following.id)}?writeReview=1#reviews`
+        : trendingProfessors[0]
+          ? `/professor/${trendingProfessors[0].slug ?? slugify(trendingProfessors[0].name ?? trendingProfessors[0].id)}?writeReview=1#reviews`
+          : "/top-professors"
+    })
+    : null;
 
   return (
     <div className="home-shell">
@@ -138,6 +155,7 @@ export default async function HomePage() {
         <section className="home__modules">
           {userId ? (
             <>
+              {nextAction && <NextBestActionCard action={nextAction} surface="home" />}
               <article className="home-module">
                 <p className="home-module__eyebrow">Your momentum</p>
                 <h2>

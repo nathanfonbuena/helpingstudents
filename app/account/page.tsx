@@ -14,6 +14,8 @@ import RecommendationsCard from "@/app/components/account/RecommendationsCard";
 import NotificationsCard from "@/app/components/account/NotificationsCard";
 import VerifyEduEmailForm from "@/app/components/VerifyEduEmailForm";
 import VerifiedBadge from "@/app/components/VerifiedBadge";
+import NextBestActionCard from "@/app/components/NextBestActionCard";
+import { getNextActionRecommendation } from "@/app/lib/nextAction";
 
 type AccountNotificationType = "new_review" | "new_material" | "ranking_change";
 
@@ -330,6 +332,21 @@ export default async function AccountPage() {
       })
       : [];
 
+  const reviewTargetProfessor = scheduleEntries.find((entry) => entry.course.professor?.name)?.course.professor
+    ?? follows[0]?.following
+    ?? recommendedProfessors[0]
+    ?? null;
+
+  const nextAction = getNextActionRecommendation({
+    verified: user.verified,
+    scheduleCount: scheduleEntries.length,
+    followCount: follows.length,
+    reviewsWrittenCount: user.reviewsWritten.length,
+    writeReviewHref: reviewTargetProfessor
+      ? `/professor/${("slug" in reviewTargetProfessor ? reviewTargetProfessor.slug : null) ?? slugify(reviewTargetProfessor.name ?? reviewTargetProfessor.id)}?writeReview=1#reviews`
+      : "/top-professors"
+  });
+
   const [recentReviewsOnSavedProfessors, recentMaterialsOnTrackedCourses, rankingMovers] =
     await Promise.all([
       savedProfessorIds.length
@@ -455,6 +472,8 @@ export default async function AccountPage() {
         />
 
         <AccountCta scheduleCourses={scheduleCourses} schoolId={primarySchoolId} />
+
+        <NextBestActionCard action={nextAction} surface="account" />
 
         {/* Verification CTA — only shown to unverified students */}
         {session?.user?.role !== "PROFESSOR" && !user.verified && (
