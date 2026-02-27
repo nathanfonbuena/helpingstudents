@@ -1,39 +1,75 @@
+import { auth } from "@/auth";
 import Sidebar from "@/app/components/Sidebar";
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const session = await auth();
+  const isLoggedIn = Boolean(session?.user?.id);
+
   return (
     <div className="home-shell">
       <Sidebar />
       <main className="home">
         <div className="home__hero">
           <p className="home__eyebrow">About Us</p>
-          <h1 className="home__title">See what a class is really like—before you enroll.</h1>
+          <h1 className="home__title">The Knocore Mission</h1>
+          <p className="about-mission__lead">College is complicated; succeeding shouldn&apos;t be.</p>
           <p className="home__subtitle">
-            Choosing classes should not feel like gambling. Most students still register with limited
-            information, then discover too late that the workload, grading, and exam style are not
-            what they expected. Classcrack exists to fix that.
+            Every year, thousands of students walk onto campus blind, picking professors by luck,
+            taking notes in a vacuum, and navigating the social maze alone. We built Knocore to
+            change the game.
           </p>
           <div className="home__actions">
             <a className="primary-button" href="/search">
               Search professors and courses
             </a>
-            <a className="ghost-button" href="/signup">
-              Create an account
-            </a>
+            {!isLoggedIn && (
+              <a className="ghost-button" href="/signup">
+                Create an account
+              </a>
+            )}
           </div>
         </div>
 
         <section className="home__content">
-          <div className="home__card">
-            <h2>Built on real student materials, not just opinions</h2>
-            <p>
-              We are building the most trusted place to understand professors and courses through
-              real, student-shared resources—organized by school, course, professor, and term.
+          <div className="home__card about-mission">
+            <p className="about-mission__eyebrow">How We Tie Campus Together</p>
+            <p className="about-mission__statement">
+              We believe that the best resource a student has is another student.
+            </p>
+            <div className="about-mission__divider" aria-hidden="true" />
+            <div className="about-mission__pillars">
+              <div className="about-mission__pillar">
+                <p className="about-mission__pillar-number">01</p>
+                <h3>Crowdsourced professor insights</h3>
+                <p>See what grading, workload, and class structure are really like before enrolling.</p>
+              </div>
+              <div className="about-mission__pillar">
+                <p className="about-mission__pillar-number">02</p>
+                <h3>High-impact note sharing</h3>
+                <p>Learn faster with practical notes, study guides, and course breakdowns from peers.</p>
+              </div>
+              <div className="about-mission__pillar">
+                <p className="about-mission__pillar-number">03</p>
+                <h3>Peer-to-peer support network</h3>
+                <p>Navigate classes with students who have already gone through the same path.</p>
+              </div>
+            </div>
+            <p className="about-mission__close">
+              At Knocore, we don&apos;t just help you get the degree. We help you master the journey,
+              tie your campus together, and take control of your education.
             </p>
           </div>
 
           <div className="home__card">
-            <h2>On Classcrack you can</h2>
+            <h2>Built on real student materials, not just opinions</h2>
+            <p>
+              We are building the most trusted place to understand professors and courses through
+              real, student-shared resources organized by school, course, professor, and term.
+            </p>
+          </div>
+
+          <div className="home__card">
+            <h2>On Knocore you can</h2>
             <ul className="about-list">
               <li>
                 Search any professor or course and see the details that matter: grading breakdowns,
@@ -54,7 +90,7 @@ export default function AboutPage() {
           <div className="home__card">
             <h2>Verified students = trusted contributions</h2>
             <p>
-              Anyone can leave a review anywhere. We are focused on trust. That is why Classcrack is
+              Anyone can leave a review anywhere. We are focused on trust. That is why Knocore is
               built around verified student profiles. Verification keeps contributions relevant to
               real classes at real schools and creates accountability that improves quality over
               time.
@@ -68,15 +104,7 @@ export default function AboutPage() {
           </div>
 
           <div className="home__card">
-            <h2>Our mission</h2>
-            <p>
-              To help students make smarter academic decisions—and to help every class feel more
-              predictable, fair, and winnable.
-            </p>
-          </div>
-
-          <div className="home__card">
-            <h2>What we allow (and what we don’t)</h2>
+            <h2>What we allow (and what we don&apos;t)</h2>
             <p>
               We are here to support learning and course planning. We do not allow content that
               violates academic integrity or copyright.
@@ -104,13 +132,15 @@ export default function AboutPage() {
           <div className="home__card">
             <h2>Want to help build it?</h2>
             <p>
-              If you are a student who wants to make course planning easier for everyone, join us.
-              Create an account, verify your school, and contribute what helped you succeed.
+              If you are a student who wants to make course planning easier for everyone, join us
+              by verifying your school and contributing what helped you succeed.
             </p>
             <div className="home__actions">
-              <a className="primary-button" href="/signup">
-                Create your profile
-              </a>
+              {!isLoggedIn && (
+                <a className="primary-button" href="/signup">
+                  Create your profile
+                </a>
+              )}
               <a className="ghost-button" href="/search">
                 Browse the library
               </a>

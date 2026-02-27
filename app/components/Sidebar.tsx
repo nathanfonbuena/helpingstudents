@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import type { Session } from "next-auth";
 
@@ -78,6 +79,7 @@ const navItems = [
 
 export default function Sidebar() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
   const { status, data: session } = useSession();
   const isAuthed = status === "authenticated";
   const isProfessor = (session as Session & { user?: { role?: string } })?.user?.role === "PROFESSOR";
@@ -150,6 +152,22 @@ export default function Sidebar() {
           </>
         )}
       </div>
+      <nav className="sidebar__bottom-nav" aria-label="Mobile primary">
+        {navItems.map((item) => {
+          const isActive =
+            item.href === "/"
+              ? pathname === "/"
+              : pathname === item.href || pathname.startsWith(`${item.href}/`);
+          return (
+            <a key={`mobile-${item.label}`} className={isActive ? "sidebar__bottom-link is-active" : "sidebar__bottom-link"} href={item.href}>
+              <span className="sidebar__bottom-icon" aria-hidden="true">
+                {item.icon}
+              </span>
+              <span className="sidebar__bottom-text">{item.label}</span>
+            </a>
+          );
+        })}
+      </nav>
     </aside>
   );
 }

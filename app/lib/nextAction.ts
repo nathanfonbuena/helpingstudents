@@ -41,7 +41,7 @@ export function getNextActionRecommendation({
     return {
       type: "add_class",
       title: "Add your first class",
-      description: "Build your schedule so ClassRack can surface more relevant professors and materials.",
+      description: "Build your schedule so Knocore can surface more relevant professors and materials.",
       href: "/dashboard#account-cta",
       ctaLabel: "Add class"
     };

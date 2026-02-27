@@ -7,19 +7,19 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "ClassRack",
-    template: "%s | ClassRack"
+    default: "Knocore",
+    template: "%s | Knocore"
   },
   description: "Reviews and rankings for professors across universities.",
   openGraph: {
     type: "website",
-    title: "ClassRack",
+    title: "Knocore",
     description: "Reviews and rankings for professors across universities.",
     url: siteUrl
   },
   twitter: {
     card: "summary_large_image",
-    title: "ClassRack",
+    title: "Knocore",
     description: "Reviews and rankings for professors across universities."
   },
   alternates: {

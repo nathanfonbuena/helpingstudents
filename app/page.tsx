@@ -9,17 +9,17 @@ export default async function HomePage() {
 
   const primarySchool = userId
     ? await prisma.userSchool.findFirst({
-      where: { userId, role: "STUDENT" },
-      select: {
-        school: {
-          select: {
-            id: true,
-            name: true
+        where: { userId, role: "STUDENT" },
+        select: {
+          school: {
+            select: {
+              id: true,
+              name: true
+            }
           }
-        }
-      },
-      orderBy: { createdAt: "asc" }
-    })
+        },
+        orderBy: { createdAt: "asc" }
+      })
     : null;
 
   const schoolId = primarySchool?.school.id ?? "";
@@ -30,17 +30,14 @@ export default async function HomePage() {
       <Sidebar />
       <main className="home">
         <div className="home__hero">
-          <p className="home__eyebrow">ClassRack</p>
+          <p className="home__eyebrow">Knocore</p>
           <h1 className="home__title">Search for professors, courses, and schools</h1>
           <p className="home__subtitle">
             Find the information you need quickly, then dive into the right profile.
           </p>
         </div>
 
-        <SearchBox
-          directProfessorNavigation
-          filters={schoolId ? { schoolId } : undefined}
-        />
+        <SearchBox directProfessorNavigation filters={schoolId ? { schoolId } : undefined} />
 
         {schoolName && (
           <p className="home__context-note">

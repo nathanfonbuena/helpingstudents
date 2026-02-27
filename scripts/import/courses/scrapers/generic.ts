@@ -112,7 +112,7 @@ export class AcalogScraper extends BaseScraper {
     const response = await fetch(apiUrl, {
       headers: {
         'Accept': 'application/json',
-        'User-Agent': 'ClassRack Course Importer (educational)',
+        'User-Agent': 'Knocore Course Importer (educational)',
       },
     });
 

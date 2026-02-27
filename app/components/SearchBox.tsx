@@ -18,6 +18,7 @@ interface SearchBoxProps {
   initialQuery?: string;
   action?: string;
   directProfessorNavigation?: boolean;
+  submitLabel?: string;
   filters?: {
     schoolId?: string;
     departmentId?: string;
@@ -29,6 +30,7 @@ export default function SearchBox({
   initialQuery = "",
   action = "/search",
   directProfessorNavigation = false,
+  submitLabel,
   filters
 }: SearchBoxProps) {
   const router = useRouter();
@@ -242,6 +244,11 @@ export default function SearchBox({
             window.setTimeout(() => setOpen(false), 150);
           }}
         />
+        {submitLabel && (
+          <button type="submit" className="search__submit">
+            {submitLabel}
+          </button>
+        )}
       </div>
       <div className="search__meta">
         <span>Try: "UC Berkeley" or "Dr. Chen"</span>
