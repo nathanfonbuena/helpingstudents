@@ -42,7 +42,7 @@ export function getNextActionRecommendation({
       type: "add_class",
       title: "Add your first class",
       description: "Build your schedule so ClassRack can surface more relevant professors and materials.",
-      href: "/account#account-cta",
+      href: "/dashboard#account-cta",
       ctaLabel: "Add class"
     };
   }

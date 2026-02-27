@@ -16,6 +16,7 @@ import VerifyEduEmailForm from "@/app/components/VerifyEduEmailForm";
 import VerifiedBadge from "@/app/components/VerifiedBadge";
 import NextBestActionCard from "@/app/components/NextBestActionCard";
 import { getNextActionRecommendation } from "@/app/lib/nextAction";
+import FirstRunPrompt from "@/app/components/FirstRunPrompt";
 
 type AccountNotificationType = "new_review" | "new_material" | "ranking_change";
 
@@ -24,7 +25,7 @@ export default async function AccountPage() {
   const userId = session?.user?.id;
 
   if (!userId) {
-    redirect("/login?callbackUrl=/account");
+    redirect("/login?callbackUrl=/dashboard");
   }
 
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
@@ -120,7 +121,7 @@ export default async function AccountPage() {
     ]);
 
   if (!user) {
-    redirect("/login?callbackUrl=/account");
+    redirect("/login?callbackUrl=/dashboard");
   }
 
   const schoolMap = new Map(schools.map((school) => [school.id, school.name]));
@@ -469,6 +470,11 @@ export default async function AccountPage() {
           initialSchoolId={primarySchoolId ?? ""}
           initialMajor={user.major ?? ""}
           initialYear={user.year ?? ""}
+        />
+
+        <FirstRunPrompt
+          initialSchoolId={primarySchoolId ?? ""}
+          initialSchoolName={primarySchoolName ?? ""}
         />
 
         <AccountCta scheduleCourses={scheduleCourses} schoolId={primarySchoolId} />

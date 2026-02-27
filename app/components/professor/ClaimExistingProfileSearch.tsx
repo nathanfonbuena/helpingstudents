@@ -105,7 +105,7 @@ export default function ClaimExistingProfileSearch({ isVerified, hasSchool }: Pr
       {isVerified && !hasSchool && (
         <div className="claim-existing__gate claim-existing__gate--warn">
           <strong>Add your school first.</strong>{" "}Go to{" "}
-          <a href="/account" className="inline-link">
+          <a href="/dashboard" className="inline-link">
             Account Settings
           </a>{" "}
           and add your institution before claiming a profile.
@@ -134,7 +134,7 @@ export default function ClaimExistingProfileSearch({ isVerified, hasSchool }: Pr
       {!searching && noSchool && (
         <p className="claim-existing__hint">
           You haven&rsquo;t added your school yet.{" "}
-          <a href="/account" className="inline-link">
+          <a href="/dashboard" className="inline-link">
             Go to Account Settings
           </a>{" "}
           to add your institution before searching for profiles.

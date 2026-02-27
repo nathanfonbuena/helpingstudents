@@ -66,8 +66,8 @@ async function VerifyResult({ token }: { token: string }) {
       </div>
       <h1>{isSuccess ? (alreadyVerified ? "Already Verified" : "Email Verified!") : "Verification Failed"}</h1>
       <p>{message}</p>
-      <Link href="/account" className="btn btn--primary">
-        Go to your account →
+      <Link href="/dashboard" className="btn btn--primary">
+        Go to your dashboard →
       </Link>
     </div>
   );
@@ -99,7 +99,7 @@ async function VerifyInitiate() {
         <div className="verify-page__icon">✅</div>
         <h1>Already Verified</h1>
         <p>Your university email is verified and your Verified badge is active.</p>
-        <Link href="/account" className="btn btn--primary">Back to account →</Link>
+        <Link href="/dashboard" className="btn btn--primary">Back to dashboard →</Link>
       </div>
     );
   }

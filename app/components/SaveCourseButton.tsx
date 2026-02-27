@@ -19,7 +19,7 @@ export default function SaveCourseButton({ courseId, initialSaved }: SaveCourseB
 
   const toggleSave = async () => {
     if (status !== "authenticated") {
-      router.push("/login?callbackUrl=/account");
+      router.push("/login?callbackUrl=/dashboard");
       return;
     }
 
