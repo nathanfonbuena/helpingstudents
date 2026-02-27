@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { slugify } from "@/app/lib/slug";
-import RankingConfidenceBadge from "@/app/components/ranking/RankingConfidenceBadge";
 import CompareToggleButton from "@/app/components/compare/CompareToggleButton";
 
 interface TopProfessorItem {
@@ -69,14 +68,7 @@ export default function TopProfessorsTable({
             {item.score ? item.score.toFixed(2) : "N/A"}
           </span>
           <span className="ranking-cell ranking-cell--reviews" data-label="Reviews">
-            <span className="ranking-reviews-cell">
-              <span>{item.reviewCount}</span>
-              <RankingConfidenceBadge
-                entityType="professor"
-                entityId={item.id}
-                reviewCount={item.reviewCount}
-              />
-            </span>
+            {item.reviewCount}
           </span>
         </div>
       ))}
