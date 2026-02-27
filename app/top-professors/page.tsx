@@ -5,7 +5,7 @@ import TopProfessorsTable from "@/app/components/TopProfessorsTable";
 import { firstByName } from "@/app/lib/sortUtils";
 import { slugify } from "@/app/lib/slug";
 import { Prisma } from "@prisma/client";
-import RankingExplainability from "@/app/components/ranking/RankingExplainability";
+import TopProfessorsControls from "@/app/components/ranking/TopProfessorsControls";
 
 const PAGE_SIZE = 25;
 const RATING_WEIGHT = 8;
@@ -146,33 +146,14 @@ export default async function TopProfessorsPage({
             <p className="ranking-hero__subtitle">
               Ranked by average student rating across all reviews.
             </p>
+            <Link className="ranking-hero__link" href="/compare">
+              Compare Professors
+            </Link>
           </div>
         </header>
 
         <section className="ranking-card">
-          <form className="ranking-controls" action="/top-professors" method="get">
-            <label>
-              Sort by
-              <select name="sort" defaultValue={sort}>
-                <option value="score">Weighted score</option>
-                <option value="rating">Avg rating</option>
-                <option value="reviews">Review count</option>
-              </select>
-            </label>
-            <label>
-              Minimum reviews
-              <select name="minReviews" defaultValue={String(minReviews)}>
-                <option value="0">Any</option>
-                <option value="5">5+</option>
-                <option value="10">10+</option>
-                <option value="20">20+</option>
-              </select>
-            </label>
-            <button type="submit" className="pagination__link">
-              Apply
-            </button>
-            <RankingExplainability rankingType="professors" sort={sort} />
-          </form>
+          <TopProfessorsControls sort={sort} minReviews={minReviews} />
 
           <TopProfessorsTable items={items} />
 
