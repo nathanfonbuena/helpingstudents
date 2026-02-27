@@ -2,5 +2,5 @@ import { test, expect } from "@playwright/test";
 
 test("homepage loads", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByText("ClassRack")).toBeVisible();
+  await expect(page.getByText("Knocore")).toBeVisible();
 });

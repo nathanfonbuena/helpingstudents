@@ -87,7 +87,7 @@ export default function ClaimExistingProfileSearch({ isVerified, hasSchool }: Pr
       <div className="claim-existing__header">
         <h3>Find your existing profile</h3>
         <p>
-          If students have already added you to ClassRack, search for your name
+          If students have already added you to Knocore, search for your name
           below and take ownership of that profile.
         </p>
       </div>

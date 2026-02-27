@@ -41,6 +41,9 @@ export default function SaveCourseButton({ courseId, initialSaved }: SaveCourseB
     const payload = (await response.json()) as { saved?: boolean };
     const nextSaved = payload.saved ?? !saved;
     setSaved(nextSaved);
+    if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
+      navigator.vibrate(12);
+    }
     toast.push(nextSaved ? "Course saved." : "Course unsaved.", "success");
   };
 

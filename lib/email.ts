@@ -11,7 +11,7 @@ const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
   : null;
 
-const FROM_ADDRESS = process.env.EMAIL_FROM ?? "ClassRack <noreply@classrack.dev>";
+const FROM_ADDRESS = process.env.EMAIL_FROM ?? "Knocore <noreply@classrack.dev>";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -34,13 +34,13 @@ export async function sendVerificationEmail(
   await resend.emails.send({
     from: FROM_ADDRESS,
     to: toEmail,
-    subject: "Verify your university email — ClassRack",
+    subject: "Verify your university email — Knocore",
     html: `
       <div style="font-family: Georgia, serif; max-width: 560px; margin: 0 auto; padding: 32px 24px; color: #0f1b15;">
         <h1 style="font-size: 24px; margin-bottom: 8px;">Verify your .edu email</h1>
         <p style="color: #46564c; margin-bottom: 24px;">
           Click the button below to confirm your university email address and earn a
-          <strong>Verified</strong> badge on your ClassRack reviews.
+          <strong>Verified</strong> badge on your Knocore reviews.
         </p>
         <a href="${verifyUrl}"
            style="display: inline-block; background: #0f6b48; color: #fff;
@@ -80,12 +80,12 @@ export async function sendReVerificationEmail(
   await resend.emails.send({
     from: FROM_ADDRESS,
     to: toEmail,
-    subject: "Renew your ClassRack verification",
+    subject: "Renew your Knocore verification",
     html: `
       <div style="font-family: Georgia, serif; max-width: 560px; margin: 0 auto; padding: 32px 24px; color: #0f1b15;">
         <h1 style="font-size: 24px; margin-bottom: 8px;">Time to renew your verification</h1>
         <p style="color: #46564c; margin-bottom: 24px;">
-          Your ClassRack verified badge is expiring soon. Click below to renew your
+          Your Knocore verified badge is expiring soon. Click below to renew your
           enrollment verification and keep the badge on your reviews.
         </p>
         <a href="${verifyUrl}"
@@ -123,13 +123,13 @@ export async function sendProfessorClaimEmail(
   await resend.emails.send({
     from: FROM_ADDRESS,
     to: toEmail,
-    subject: "Claim your ClassRack professor profile",
+    subject: "Claim your Knocore professor profile",
     html: `
       <div style="font-family: Georgia, serif; max-width: 560px; margin: 0 auto; padding: 32px 24px; color: #0f1b15;">
         <h1 style="font-size: 24px; margin-bottom: 8px;">Claim your professor profile</h1>
         <p style="color: #46564c; margin-bottom: 8px;">Hi ${professorName},</p>
         <p style="color: #46564c; margin-bottom: 24px;">
-          You have a professor profile on ClassRack. Click below to claim it, add a bio,
+          You have a professor profile on Knocore. Click below to claim it, add a bio,
           upload your syllabus, and respond to student reviews.
         </p>
         <a href="${claimUrl}"
@@ -163,7 +163,7 @@ export async function sendReplyApprovedEmail(
   await resend.emails.send({
     from: FROM_ADDRESS,
     to: toEmail,
-    subject: "Your reply has been approved — ClassRack",
+    subject: "Your reply has been approved — Knocore",
     html: `
       <div style="font-family: Georgia, serif; max-width: 560px; margin: 0 auto; padding: 32px 24px; color: #0f1b15;">
         <h1 style="font-size: 24px; margin-bottom: 8px;">Your reply is now live</h1>

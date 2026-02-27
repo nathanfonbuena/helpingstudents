@@ -46,6 +46,9 @@ export default function MaterialSaveButton({
     const payload = (await response.json()) as { saved?: boolean };
     const nextSaved = payload.saved ?? !saved;
     setSaved(nextSaved);
+    if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
+      navigator.vibrate(12);
+    }
     toast.push(nextSaved ? "Material saved." : "Material unsaved.", "success");
   };
 

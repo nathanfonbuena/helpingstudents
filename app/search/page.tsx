@@ -22,6 +22,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const session = await auth();
   const userId = session?.user?.id ?? null;
   const query = (searchParams?.q ?? "").trim();
+  const hour = new Date().getHours();
+  const mood = hour < 12 ? "calm" : hour < 18 ? "focus" : "neon";
   const schoolId = searchParams?.schoolId ?? "";
   const departmentId = searchParams?.departmentId ?? "";
   const tagId = searchParams?.tagId ?? "";
@@ -185,10 +187,18 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       ])
       : [null, [], [], []];
 
+  const totalResults = schools.length + professors.length + courses.length;
+  const focusLabel = query
+    ? noMatches
+      ? "No exact hits yet"
+      : "Results are live"
+    : "Start with a quick query";
+  const filterCount = [schoolId, departmentId, tagId].filter(Boolean).length;
+
   return (
     <div className="home-shell">
       <Sidebar />
-      <main className="search-page">
+      <main className={`search-page search-page--cyber search-page--cyber-${mood}`}>
         <div className="search-page__header">
           <h1>Search results</h1>
           <p>
@@ -197,6 +207,54 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               : "Search for a school or professor to see results."}
           </p>
         </div>
+
+        <section className="search-bento" aria-label="Search overview">
+          <article className="search-bento__card search-bento__card--lead">
+            <p className="search-bento__kicker">Quick read</p>
+            <h2>{focusLabel}</h2>
+            <p>
+              {query
+                ? noMatches
+                  ? "Try nearby schools, similar professor names, or remove one filter."
+                  : "Swipe through sections below and lock in your next class decision fast."
+                : "Use short terms like course number, school name, or professor last name."}
+            </p>
+            <div className="search-bento__chips">
+              <span>Heavy Grader</span>
+              <span>Exam-heavy</span>
+              <span>Slides are 10/10</span>
+            </div>
+          </article>
+          <article className="search-bento__card">
+            <h3>Result mix</h3>
+            <dl>
+              <div>
+                <dt>Total</dt>
+                <dd>{totalResults}</dd>
+              </div>
+              <div>
+                <dt>Professors</dt>
+                <dd>{professors.length}</dd>
+              </div>
+              <div>
+                <dt>Courses</dt>
+                <dd>{courses.length}</dd>
+              </div>
+            </dl>
+          </article>
+          <article className="search-bento__card">
+            <h3>Filter state</h3>
+            <p className="search-bento__meta">
+              {filterCount === 0 ? "No filters applied." : `${filterCount} active filter${filterCount === 1 ? "" : "s"}.`}
+            </p>
+            <div className="search-bento__chips">
+              {schoolId && <span>School scoped</span>}
+              {departmentId && <span>Department scoped</span>}
+              {tagId && <span>Tag scoped</span>}
+              {!schoolId && !departmentId && !tagId && <span>All schools</span>}
+            </div>
+          </article>
+        </section>
 
         <div className="search-page__controls">
           <SearchBox

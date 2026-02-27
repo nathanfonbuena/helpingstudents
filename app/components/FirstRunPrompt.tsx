@@ -134,7 +134,7 @@ export default function FirstRunPrompt({
         <div className="modal-header">
           <div>
             <h2>Quick setup</h2>
-            <p>Two fast steps to personalize ClassRack for you.</p>
+            <p>Two fast steps to personalize Knocore for you.</p>
           </div>
           <button type="button" className="modal-close" onClick={() => closePrompt("dismissed")}>
             ×
