@@ -347,6 +347,17 @@ export default async function AccountPage() {
       ? `/professor/${("slug" in reviewTargetProfessor ? reviewTargetProfessor.slug : null) ?? slugify(reviewTargetProfessor.name ?? reviewTargetProfessor.id)}?writeReview=1#reviews`
       : "/top-professors"
   });
+  const emailDomain = user.email.split("@")[1]?.toLowerCase() ?? "";
+  const hasEduEmailDomain = emailDomain.endsWith(".edu");
+  const isProfessorUser = session?.user?.role === "PROFESSOR";
+  const showInlineVerificationForm =
+    !isProfessorUser &&
+    !user.verified &&
+    !hasEduEmailDomain;
+  const showNextActionCard = !(
+    nextAction.type === "verify_email" &&
+    showInlineVerificationForm
+  );
 
   const [recentReviewsOnSavedProfessors, recentMaterialsOnTrackedCourses, rankingMovers] =
     await Promise.all([
@@ -479,10 +490,10 @@ export default async function AccountPage() {
 
         <AccountCta scheduleCourses={scheduleCourses} schoolId={primarySchoolId} />
 
-        <NextBestActionCard action={nextAction} surface="account" />
+        {showNextActionCard && <NextBestActionCard action={nextAction} surface="account" />}
 
         {/* Verification CTA — only shown to unverified students */}
-        {session?.user?.role !== "PROFESSOR" && !user.verified && (
+        {showInlineVerificationForm && (
           <section style={{ margin: "0 0 28px" }}>
             <VerifyEduEmailForm />
           </section>
