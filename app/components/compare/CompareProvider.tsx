@@ -30,27 +30,33 @@ export function useCompare() {
 
 export default function CompareProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CompareProfessorItem[]>([]);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     try {
       const stored = localStorage.getItem(COMPARE_STORAGE_KEY);
-      if (!stored) return;
-      const parsed = JSON.parse(stored);
-      if (!Array.isArray(parsed)) return;
-      const safeItems = parsed
-        .filter((item): item is CompareProfessorItem => {
-          return Boolean(item?.id && item?.name && item?.slug);
-        })
-        .slice(0, MAX_COMPARE_PROFESSORS);
-      setItems(safeItems);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          const safeItems = parsed
+            .filter((item): item is CompareProfessorItem => {
+              return Boolean(item?.id && item?.name && item?.slug);
+            })
+            .slice(0, MAX_COMPARE_PROFESSORS);
+          setItems(safeItems);
+        }
+      }
     } catch {
       setItems([]);
+    } finally {
+      setHydrated(true);
     }
   }, []);
 
   useEffect(() => {
+    if (!hydrated) return;
     localStorage.setItem(COMPARE_STORAGE_KEY, JSON.stringify(items));
-  }, [items]);
+  }, [hydrated, items]);
 
   const isInCompare = (professorId: string) => items.some((item) => item.id === professorId);
 

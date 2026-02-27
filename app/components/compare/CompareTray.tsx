@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { trackEvent } from "@/app/lib/analytics";
 import { useCompare } from "@/app/components/compare/CompareProvider";
 
 export default function CompareTray() {
   const { items, removeFromCompare, clearCompare, maxItems } = useCompare();
+  const pathname = usePathname();
 
-  if (items.length === 0) return null;
+  if (items.length === 0 || pathname === "/compare") return null;
 
   return (
     <aside className="compare-tray" aria-label="Professor compare tray">

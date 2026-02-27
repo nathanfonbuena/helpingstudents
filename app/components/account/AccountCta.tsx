@@ -15,7 +15,7 @@ interface AccountCtaProps {
 
 export default function AccountCta({ scheduleCourses, schoolId }: AccountCtaProps) {
   return (
-    <section className="account-cta">
+    <section id="account-cta" className="account-cta">
       <div className="cta-row">
         <UploadMaterialModalTrigger label="Upload material" scheduleCourses={scheduleCourses} />
         <ScheduleModalTrigger label="Add your schedule" schoolId={schoolId} variant="ghost" />

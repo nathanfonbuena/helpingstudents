@@ -122,8 +122,8 @@ export default function Sidebar() {
                 Professor Portal
               </a>
             )}
-            <a className="sidebar__action" href="/account">
-              Account
+            <a className="sidebar__action" href="/dashboard">
+              Dashboard
             </a>
             <a className="sidebar__action sidebar__action--ghost" href="/settings">
               Settings

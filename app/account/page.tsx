@@ -14,6 +14,9 @@ import RecommendationsCard from "@/app/components/account/RecommendationsCard";
 import NotificationsCard from "@/app/components/account/NotificationsCard";
 import VerifyEduEmailForm from "@/app/components/VerifyEduEmailForm";
 import VerifiedBadge from "@/app/components/VerifiedBadge";
+import NextBestActionCard from "@/app/components/NextBestActionCard";
+import { getNextActionRecommendation } from "@/app/lib/nextAction";
+import FirstRunPrompt from "@/app/components/FirstRunPrompt";
 
 type AccountNotificationType = "new_review" | "new_material" | "ranking_change";
 
@@ -22,7 +25,7 @@ export default async function AccountPage() {
   const userId = session?.user?.id;
 
   if (!userId) {
-    redirect("/login?callbackUrl=/account");
+    redirect("/login?callbackUrl=/dashboard");
   }
 
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
@@ -118,7 +121,7 @@ export default async function AccountPage() {
     ]);
 
   if (!user) {
-    redirect("/login?callbackUrl=/account");
+    redirect("/login?callbackUrl=/dashboard");
   }
 
   const schoolMap = new Map(schools.map((school) => [school.id, school.name]));
@@ -330,6 +333,32 @@ export default async function AccountPage() {
       })
       : [];
 
+  const reviewTargetProfessor = scheduleEntries.find((entry) => entry.course.professor?.name)?.course.professor
+    ?? follows[0]?.following
+    ?? recommendedProfessors[0]
+    ?? null;
+
+  const nextAction = getNextActionRecommendation({
+    verified: user.verified,
+    scheduleCount: scheduleEntries.length,
+    followCount: follows.length,
+    reviewsWrittenCount: user.reviewsWritten.length,
+    writeReviewHref: reviewTargetProfessor
+      ? `/professor/${("slug" in reviewTargetProfessor ? reviewTargetProfessor.slug : null) ?? slugify(reviewTargetProfessor.name ?? reviewTargetProfessor.id)}?writeReview=1#reviews`
+      : "/top-professors"
+  });
+  const emailDomain = user.email.split("@")[1]?.toLowerCase() ?? "";
+  const hasEduEmailDomain = emailDomain.endsWith(".edu");
+  const isProfessorUser = session?.user?.role === "PROFESSOR";
+  const showInlineVerificationForm =
+    !isProfessorUser &&
+    !user.verified &&
+    !hasEduEmailDomain;
+  const showNextActionCard = !(
+    nextAction.type === "verify_email" &&
+    showInlineVerificationForm
+  );
+
   const [recentReviewsOnSavedProfessors, recentMaterialsOnTrackedCourses, rankingMovers] =
     await Promise.all([
       savedProfessorIds.length
@@ -454,10 +483,17 @@ export default async function AccountPage() {
           initialYear={user.year ?? ""}
         />
 
+        <FirstRunPrompt
+          initialSchoolId={primarySchoolId ?? ""}
+          initialSchoolName={primarySchoolName ?? ""}
+        />
+
         <AccountCta scheduleCourses={scheduleCourses} schoolId={primarySchoolId} />
 
+        {showNextActionCard && <NextBestActionCard action={nextAction} surface="account" />}
+
         {/* Verification CTA — only shown to unverified students */}
-        {session?.user?.role !== "PROFESSOR" && !user.verified && (
+        {showInlineVerificationForm && (
           <section style={{ margin: "0 0 28px" }}>
             <VerifyEduEmailForm />
           </section>
