@@ -8,14 +8,17 @@ export default function SignupPage({
 }: {
   searchParams?: { callbackUrl?: string };
 }) {
-  const callbackUrl = searchParams?.callbackUrl ?? "/";
+  // Store the original callback URL so the onboarding wizard can redirect
+  // to it after completion. The signup form always redirects to /onboarding first.
+  const originalCallbackUrl = searchParams?.callbackUrl;
+
   return (
     <div className="home-shell">
       <Sidebar />
       <main className="auth-page">
         <AuthSplitLayout
-          title="Create account"
-          subtitle="Sign up to save reviews and vote on feedback."
+          title="Create your account"
+          subtitle="Find the best professors at your school."
           footer={
             <>
               <p>
@@ -27,13 +30,20 @@ export default function SignupPage({
               <p>
                 Are you a professor?{" "}
                 <Link className="inline-link" href="/signup/professor">
-                  Create a faculty account →
+                  Create a faculty account &rarr;
                 </Link>
               </p>
             </>
           }
         >
-          <SignupForm callbackUrl={callbackUrl} />
+          <SignupForm callbackUrl="/onboarding" />
+          {originalCallbackUrl && originalCallbackUrl !== "/" && (
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `sessionStorage.setItem("postOnboardingRedirect",${JSON.stringify(originalCallbackUrl)})`
+              }}
+            />
+          )}
         </AuthSplitLayout>
       </main>
     </div>

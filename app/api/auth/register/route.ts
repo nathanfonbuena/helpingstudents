@@ -5,15 +5,11 @@ import { hashPassword } from "@/lib/password";
 
 export async function POST(request: Request) {
   try {
-    const { name, email, password, role, firstRunSelection } = (await request.json()) as {
+    const { name, email, password, role } = (await request.json()) as {
       name?: string;
       email?: string;
       password?: string;
       role?: string;
-      firstRunSelection?: {
-        schoolId?: string;
-        role?: string;
-      };
     };
 
     const normalizedEmail = email?.toLowerCase().trim();
@@ -27,15 +23,6 @@ export async function POST(request: Request) {
     }
 
     const assignedRole = role === "PROFESSOR" ? "PROFESSOR" : "STUDENT";
-    const preferredSchoolId = firstRunSelection?.schoolId?.trim();
-
-    const school =
-      preferredSchoolId
-        ? await prisma.school.findUnique({
-          where: { id: preferredSchoolId },
-          select: { id: true }
-        })
-        : null;
 
     const user = await prisma.$transaction(async (tx) => {
       const createdUser = await tx.user.create({
@@ -50,16 +37,6 @@ export async function POST(request: Request) {
         },
         select: { id: true, email: true }
       });
-
-      if (school?.id) {
-        await tx.userSchool.create({
-          data: {
-            userId: createdUser.id,
-            schoolId: school.id,
-            role: assignedRole
-          }
-        });
-      }
 
       return createdUser;
     });

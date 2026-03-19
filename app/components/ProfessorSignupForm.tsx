@@ -4,8 +4,6 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
-const FIRST_RUN_SELECTION_KEY = "firstRunSelection:v1";
-
 export default function ProfessorSignupForm() {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -20,36 +18,10 @@ export default function ProfessorSignupForm() {
     setError(null);
     setLoading(true);
 
-    const rawSelection = window.localStorage.getItem(FIRST_RUN_SELECTION_KEY);
-    let firstRunSelection: { role?: "STUDENT" | "PROFESSOR"; schoolId?: string; schoolName?: string } | null = null;
-    if (rawSelection) {
-      try {
-        firstRunSelection = JSON.parse(rawSelection) as {
-          role?: "STUDENT" | "PROFESSOR";
-          schoolId?: string;
-          schoolName?: string;
-        };
-      } catch {
-        firstRunSelection = null;
-      }
-    }
-
     const response = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name,
-        email,
-        password,
-        role: "PROFESSOR",
-        firstRunSelection:
-          firstRunSelection && firstRunSelection.schoolId
-            ? {
-              role: firstRunSelection.role,
-              schoolId: firstRunSelection.schoolId
-            }
-            : undefined
-      })
+      body: JSON.stringify({ name, email, password, role: "PROFESSOR" })
     });
 
     if (!response.ok) {
@@ -63,7 +35,7 @@ export default function ProfessorSignupForm() {
       redirect: false,
       email,
       password,
-      callbackUrl: "/professor-portal"
+      callbackUrl: "/onboarding"
     });
 
     setLoading(false);
@@ -73,18 +45,25 @@ export default function ProfessorSignupForm() {
       return;
     }
 
-    if (firstRunSelection?.schoolId) {
-      const sessionResponse = await fetch("/api/auth/session");
-      if (sessionResponse.ok) {
-        const sessionPayload = (await sessionResponse.json()) as { user?: { id?: string } };
-        if (sessionPayload.user?.id) {
-          window.localStorage.setItem(`firstRunPrompt:v1:${sessionPayload.user.id}`, "completed");
+    // Migrate localStorage school context to user profile
+    try {
+      const raw = localStorage.getItem("schoolContext:v1");
+      if (raw) {
+        const { schoolId: storedSchoolId } = JSON.parse(raw) as { schoolId?: string };
+        if (storedSchoolId) {
+          await fetch("/api/account/profile", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ schoolId: storedSchoolId })
+          });
         }
+        localStorage.removeItem("schoolContext:v1");
       }
-      window.localStorage.removeItem(FIRST_RUN_SELECTION_KEY);
+    } catch {
+      // Migration failure must not block signup
     }
 
-    router.push("/professor-portal");
+    router.push("/onboarding");
   };
 
   const passwordStrength =
@@ -101,8 +80,8 @@ export default function ProfessorSignupForm() {
   return (
     <form className="auth-form" onSubmit={handleSubmit}>
       <div className="professor-signup-badge">
-        <span className="professor-signup-badge__icon">🎓</span>
-        <span>Faculty account — you&apos;ll have access to the Professor Portal</span>
+        <span className="professor-signup-badge__icon">&#127891;</span>
+        <span>Faculty account &mdash; you&apos;ll have access to the Professor Portal</span>
       </div>
 
       <label>
@@ -154,7 +133,7 @@ export default function ProfessorSignupForm() {
       {error && <p className="auth-error">{error}</p>}
 
       <button type="submit" className="primary-button primary-button--professor" disabled={loading}>
-        {loading ? "Creating account…" : "Create faculty account"}
+        {loading ? "Creating account\u2026" : "Create faculty account"}
       </button>
     </form>
   );

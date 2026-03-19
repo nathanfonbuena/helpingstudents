@@ -63,9 +63,10 @@ model User {
   year          String?
   passwordHash  String?
   theme         ThemePreference @default(LIGHT)
-  role          UserRole
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  role                         UserRole
+  onboardingCompletedAt        DateTime?
+  createdAt                    DateTime        @default(now())
+  updatedAt                    DateTime        @updatedAt
 
   schools                      UserSchool[]
   reviewsWritten               Review[]                @relation("reviews_written")

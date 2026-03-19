@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
+import { getSchoolContext } from "@/app/lib/schoolContext";
 import SearchBox from "@/app/components/SearchBox";
 import Sidebar from "@/app/components/Sidebar";
 import SchoolResultCard from "@/app/components/search/SchoolResultCard";
@@ -24,7 +25,19 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const query = (searchParams?.q ?? "").trim();
   const hour = new Date().getHours();
   const mood = hour < 12 ? "calm" : hour < 18 ? "focus" : "neon";
-  const schoolId = searchParams?.schoolId ?? "";
+
+  // Distinguish "first visit" (no schoolId param) from "user chose All schools" (empty param)
+  const hasExplicitSchoolParam = searchParams != null && "schoolId" in searchParams;
+  let schoolId = searchParams?.schoolId ?? "";
+
+  if (!hasExplicitSchoolParam && !schoolId) {
+    const ctx = await getSchoolContext({
+      sessionSchoolId: session?.user?.primarySchoolId,
+      sessionSchoolName: session?.user?.primarySchoolName
+    });
+    schoolId = ctx.schoolId;
+  }
+
   const departmentId = searchParams?.departmentId ?? "";
   const tagId = searchParams?.tagId ?? "";
 

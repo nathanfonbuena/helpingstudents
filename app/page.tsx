@@ -1,34 +1,40 @@
+import Link from "next/link";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
 import Sidebar from "./components/Sidebar";
 import SearchBox from "./components/SearchBox";
+import { getSchoolContext } from "@/app/lib/schoolContext";
 
 export default async function HomePage() {
   const session = await auth();
   const userId = session?.user?.id ?? null;
 
-  const primarySchool = userId
-    ? await prisma.userSchool.findFirst({
-        where: { userId, role: "STUDENT" },
-        select: {
-          school: {
-            select: {
-              id: true,
-              name: true
-            }
-          }
-        },
-        orderBy: { createdAt: "asc" }
-      })
-    : null;
+  const { schoolId, schoolName } = await getSchoolContext({
+    sessionSchoolId: session?.user?.primarySchoolId,
+    sessionSchoolName: session?.user?.primarySchoolName
+  });
 
-  const schoolId = primarySchool?.school.id ?? "";
-  const schoolName = primarySchool?.school.name ?? "";
+  const onboardingCompletedAt = (
+    session?.user as unknown as Record<string, unknown> | undefined
+  )?.onboardingCompletedAt as string | null | undefined;
+
+  const showOnboardingBanner = userId && !onboardingCompletedAt;
 
   return (
     <div className="home-shell">
       <Sidebar />
       <main className="home">
+        {showOnboardingBanner && (
+          <div className="home__onboarding-banner">
+            <p>
+              <strong>Finish setting up your account</strong> to get personalized
+              professor and course recommendations.
+            </p>
+            <Link href="/onboarding" className="home__onboarding-banner-link">
+              Complete setup &rarr;
+            </Link>
+          </div>
+        )}
+
         <div className="home__hero">
           <p className="home__eyebrow">Knocore</p>
           <h1 className="home__title">Search for professors, courses, and schools</h1>

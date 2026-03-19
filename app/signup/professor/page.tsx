@@ -10,14 +10,14 @@ export default function ProfessorSignupPage() {
       <main className="auth-page">
         <AuthSplitLayout
           title="Join as a faculty member"
-          subtitle="Claim your profile, upload syllabi, and respond to student reviews."
+          subtitle="Claim your profile, upload syllabi, and respond to reviews."
           footer={
             <p>
               Already have an account?{" "}
               <Link className="inline-link" href="/login">
                 Log in
               </Link>
-              {" · "}
+              {" \u00B7 "}
               <Link className="inline-link" href="/signup">
                 Sign up as a student
               </Link>

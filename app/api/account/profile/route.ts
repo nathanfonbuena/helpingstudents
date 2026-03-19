@@ -11,12 +11,13 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { name, schoolId, major, year, role } = (await request.json()) as {
+  const { name, schoolId, major, year, role, completeOnboarding } = (await request.json()) as {
     name?: string;
     schoolId?: string;
     major?: string;
     year?: string;
     role?: UserRole;
+    completeOnboarding?: boolean;
   };
 
   const normalizedMajor = major?.trim() || null;
@@ -46,14 +47,18 @@ export async function PATCH(request: Request) {
     role === "PROFESSOR" || role === "STUDENT" ? role : currentUser.role;
 
   await prisma.$transaction(async (tx) => {
+    const updateData: Record<string, unknown> = {
+      role: nextRole
+    };
+
+    if (name !== undefined) updateData.name = name.trim() || null;
+    if (major !== undefined) updateData.major = normalizedMajor;
+    if (year !== undefined) updateData.year = normalizedYear;
+    if (completeOnboarding) updateData.onboardingCompletedAt = new Date();
+
     await tx.user.update({
       where: { id: userId },
-      data: {
-        name: name?.trim() || null,
-        major: normalizedMajor,
-        year: normalizedYear,
-        role: nextRole
-      }
+      data: updateData
     });
 
     await tx.userSchool.deleteMany({

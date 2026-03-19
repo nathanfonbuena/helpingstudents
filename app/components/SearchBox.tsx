@@ -113,9 +113,9 @@ export default function SearchBox({
     const handle = window.setTimeout(async () => {
       setLoading(true);
       try {
-        const response = await fetch(
-          `/api/search/suggest?q=${encodeURIComponent(query.trim())}`
-        );
+        const suggestParams = new URLSearchParams(paramsString);
+        suggestParams.set("q", query.trim());
+        const response = await fetch(`/api/search/suggest?${suggestParams.toString()}`);
         const payload = await response.json();
         const nextSuggestions: Suggestion[] = [
           ...(payload.schools ?? []).map((item: { id: string; name: string; slug: string }) => ({
@@ -147,7 +147,7 @@ export default function SearchBox({
     }, 250);
 
     return () => window.clearTimeout(handle);
-  }, [query]);
+  }, [query, paramsString]);
 
   const pushRecentSearch = (value: string) => {
     const normalized = value.trim();

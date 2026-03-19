@@ -48,17 +48,45 @@ export const authConfig: NextAuthConfig = {
     })
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id;
         token.role = (user as { role?: string }).role;
       }
+
+      // Refresh onboardingCompletedAt and primary school on sign-in and explicit session updates
+      if (trigger === "signIn" || trigger === "update") {
+        const userId = (token.id as string) ?? user?.id;
+        if (userId) {
+          const [dbUser, primarySchool] = await Promise.all([
+            prisma.user.findUnique({
+              where: { id: userId },
+              select: { onboardingCompletedAt: true }
+            }),
+            prisma.userSchool.findFirst({
+              where: { userId },
+              select: {
+                school: { select: { id: true, name: true } }
+              },
+              orderBy: { createdAt: "asc" }
+            })
+          ]);
+          token.onboardingCompletedAt = dbUser?.onboardingCompletedAt?.toISOString() ?? null;
+          token.primarySchoolId = primarySchool?.school.id ?? null;
+          token.primarySchoolName = primarySchool?.school.name ?? null;
+        }
+      }
+
       return token;
     },
     session({ session, token, user }) {
       if (session.user) {
         session.user.id = (token.id as string) ?? user?.id;
         session.user.role = (token.role as UserRole) ?? user?.role;
+        session.user.primarySchoolId = (token.primarySchoolId as string | null) ?? null;
+        session.user.primarySchoolName = (token.primarySchoolName as string | null) ?? null;
+        (session.user as unknown as Record<string, unknown>).onboardingCompletedAt =
+          (token.onboardingCompletedAt as string | null) ?? null;
       }
       return session;
     }

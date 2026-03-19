@@ -193,6 +193,117 @@ a {
   background: #f4fbf7;
 }
 
+.sidebar__school-pill {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(15, 27, 21, 0.06);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sidebar__school-pill-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-900);
+  text-decoration: none;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar__school-pill-name:hover {
+  color: var(--accent);
+}
+
+.sidebar__school-pill-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.sidebar__school-pill-change,
+.sidebar__school-pill-clear,
+.sidebar__school-pill-cancel {
+  background: transparent;
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--ink-700);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.sidebar__school-pill-change:hover,
+.sidebar__school-pill-clear:hover,
+.sidebar__school-pill-cancel:hover {
+  background: #f4fbf7;
+  border-color: rgba(15, 107, 72, 0.2);
+}
+
+.sidebar__school-pill-prompt {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--accent);
+  background: transparent;
+  border: 1px dashed rgba(15, 107, 72, 0.3);
+  border-radius: 999px;
+  padding: 6px 14px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease;
+  width: 100%;
+  text-align: center;
+}
+
+.sidebar__school-pill-prompt:hover {
+  background: #f4fbf7;
+  border-color: var(--accent);
+}
+
+.sidebar__school-pill .school-autocomplete {
+  width: 100%;
+}
+
+.sidebar:not(.is-open) .sidebar__school-pill {
+  display: none;
+}
+
+.ranking-controls__school-scope {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--accent-soft, #f4fbf7);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: var(--ink-700);
+  margin-bottom: 12px;
+}
+
+.ranking-controls__clear-school {
+  background: transparent;
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--ink-700);
+  cursor: pointer;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.ranking-controls__clear-school:hover {
+  background: #fff;
+}
+
 .sidebar__bottom-nav {
   display: none;
 }
@@ -3859,6 +3970,86 @@ a {
   justify-content: center;
   font-size: 2rem;
   margin: 0 auto 24px;
+}
+
+.onboarding__step-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.onboarding__role-choices {
+  display: grid;
+  gap: 10px;
+}
+
+.onboarding__role-choice {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  text-align: left;
+  background: #fff;
+  color: var(--ink-700);
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.onboarding__role-choice:hover {
+  border-color: var(--ink-500);
+}
+
+.onboarding__role-choice--active {
+  border-color: rgba(15, 107, 72, 0.3);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.onboarding__role-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.onboarding__role-hint {
+  font-size: 0.85rem;
+  color: var(--ink-500);
+}
+
+.onboarding__role-choice--active .onboarding__role-hint {
+  color: var(--accent);
+  opacity: 0.8;
+}
+
+.onboarding__note {
+  margin-top: 16px;
+  font-size: 0.85rem;
+  color: var(--ink-500);
+}
+
+.onboarding__school-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--panel-border);
+  font-size: 0.95rem;
+  color: var(--ink-900);
+}
+
+.onboarding__school-change {
+  border: none;
+  background: none;
+  color: var(--accent);
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.onboarding__school-change:hover {
+  text-decoration: underline;
 }
 
 @media (max-width: 600px) {

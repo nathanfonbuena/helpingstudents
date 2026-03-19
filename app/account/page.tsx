@@ -16,7 +16,6 @@ import VerifyEduEmailForm from "@/app/components/VerifyEduEmailForm";
 import VerifiedBadge from "@/app/components/VerifiedBadge";
 import NextBestActionCard from "@/app/components/NextBestActionCard";
 import { getNextActionRecommendation } from "@/app/lib/nextAction";
-import FirstRunPrompt from "@/app/components/FirstRunPrompt";
 
 type AccountNotificationType = "new_review" | "new_material" | "ranking_change";
 
@@ -481,11 +480,6 @@ export default async function AccountPage() {
           initialSchoolId={primarySchoolId ?? ""}
           initialMajor={user.major ?? ""}
           initialYear={user.year ?? ""}
-        />
-
-        <FirstRunPrompt
-          initialSchoolId={primarySchoolId ?? ""}
-          initialSchoolName={primarySchoolName ?? ""}
         />
 
         <AccountCta scheduleCourses={scheduleCourses} schoolId={primarySchoolId} />

@@ -9,11 +9,15 @@ type SortType = "score" | "rating" | "reviews";
 interface TopProfessorsControlsProps {
   sort: SortType;
   minReviews: number;
+  schoolId?: string;
+  schoolName?: string;
 }
 
 export default function TopProfessorsControls({
   sort,
-  minReviews
+  minReviews,
+  schoolId,
+  schoolName
 }: TopProfessorsControlsProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -45,8 +49,28 @@ export default function TopProfessorsControls({
     router.push(query ? `${pathname}?${query}` : pathname);
   };
 
+  const clearSchool = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("schoolId", "");
+    params.delete("page");
+    const query = params.toString();
+    router.push(query ? `${pathname}?${query}` : pathname);
+  };
+
   return (
     <div className="ranking-controls ranking-controls--professors">
+      {schoolId && schoolName && (
+        <div className="ranking-controls__school-scope">
+          <span>Showing professors at <strong>{schoolName}</strong></span>
+          <button
+            type="button"
+            className="ranking-controls__clear-school"
+            onClick={clearSchool}
+          >
+            Show all
+          </button>
+        </div>
+      )}
       <div className="ranking-controls__right">
         <div className="ranking-control">
           <label htmlFor="ranking-sort">

@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
+import { getSchoolContext } from "@/app/lib/schoolContext";
 import Sidebar from "@/app/components/Sidebar";
 import TopProfessorsTable from "@/app/components/TopProfessorsTable";
 import { firstByName } from "@/app/lib/sortUtils";
@@ -15,12 +17,15 @@ interface TopProfessorsPageProps {
     page?: string;
     sort?: string;
     minReviews?: string;
+    schoolId?: string;
   };
 }
 
 export default async function TopProfessorsPage({
   searchParams
 }: TopProfessorsPageProps) {
+  const session = await auth();
+
   const sort: "score" | "rating" | "reviews" =
     searchParams?.sort === "rating" || searchParams?.sort === "reviews"
       ? searchParams.sort
@@ -37,6 +42,28 @@ export default async function TopProfessorsPage({
         ? `stats.review_count DESC, score DESC`
         : `score DESC, stats.review_count DESC`;
 
+  // Resolve school context: explicit param > session default > none
+  const hasExplicitSchoolParam = searchParams != null && "schoolId" in searchParams;
+  let resolvedSchoolId = searchParams?.schoolId ?? "";
+  let resolvedSchoolName = "";
+
+  if (hasExplicitSchoolParam && resolvedSchoolId) {
+    const ctx = await getSchoolContext({ querySchoolId: resolvedSchoolId });
+    resolvedSchoolName = ctx.schoolName;
+  } else if (!hasExplicitSchoolParam) {
+    const ctx = await getSchoolContext({
+      sessionSchoolId: session?.user?.primarySchoolId,
+      sessionSchoolName: session?.user?.primarySchoolName
+    });
+    resolvedSchoolId = ctx.schoolId;
+    resolvedSchoolName = ctx.schoolName;
+  }
+  // else: hasExplicitSchoolParam && empty → user chose "All schools"
+
+  const schoolFilter = resolvedSchoolId
+    ? Prisma.sql`AND "professorId" IN (SELECT "userId" FROM "UserSchool" WHERE "schoolId" = ${resolvedSchoolId})`
+    : Prisma.empty;
+
   const [ratingGroups, totalCountResult] = await Promise.all([
     prisma.$queryRaw<
       {
@@ -52,6 +79,7 @@ export default async function TopProfessorsPage({
           AVG("rating")::float AS average_rating,
           COUNT(*)::int AS review_count
         FROM "Review"
+        WHERE 1=1 ${schoolFilter}
         GROUP BY "professorId"
       ),
       global_avg AS (
@@ -78,6 +106,7 @@ export default async function TopProfessorsPage({
       FROM (
         SELECT "professorId"
         FROM "Review"
+        WHERE 1=1 ${schoolFilter}
         GROUP BY "professorId"
         HAVING COUNT(*) >= ${minReviews}
       ) AS review_counts
@@ -115,6 +144,7 @@ export default async function TopProfessorsPage({
     params.set("page", String(nextPage));
     if (sort !== "score") params.set("sort", sort);
     if (minReviews > 0) params.set("minReviews", String(minReviews));
+    if (resolvedSchoolId) params.set("schoolId", resolvedSchoolId);
     return `/top-professors?${params.toString()}`;
   };
   const items = ratingGroups.map((group, index) => {
@@ -135,6 +165,10 @@ export default async function TopProfessorsPage({
     };
   });
 
+  const subtitleText = resolvedSchoolName
+    ? `Ranked by average student rating at ${resolvedSchoolName}.`
+    : "Ranked by average student rating across all reviews.";
+
   return (
     <div className="home-shell">
       <Sidebar />
@@ -144,7 +178,7 @@ export default async function TopProfessorsPage({
             <p className="ranking-hero__eyebrow">Leaderboard</p>
             <h1 className="ranking-hero__title">Top Professors</h1>
             <p className="ranking-hero__subtitle">
-              Ranked by average student rating across all reviews.
+              {subtitleText}
             </p>
             <Link className="ranking-hero__link" href="/compare">
               Compare Professors
@@ -153,7 +187,12 @@ export default async function TopProfessorsPage({
         </header>
 
         <section className="ranking-card">
-          <TopProfessorsControls sort={sort} minReviews={minReviews} />
+          <TopProfessorsControls
+            sort={sort}
+            minReviews={minReviews}
+            schoolId={resolvedSchoolId}
+            schoolName={resolvedSchoolName}
+          />
 
           <TopProfessorsTable items={items} />
 

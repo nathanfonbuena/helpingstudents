@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import { useToast } from "@/app/components/ToastProvider";
 import SchoolAutocomplete from "@/app/components/SchoolAutocomplete";
 
@@ -30,6 +31,7 @@ export default function AccountForm({
   const [status, setStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState(false);
+  const { update: updateSession } = useSession();
   const toast = useToast();
 
   const handleSchoolChange = (newSchoolId: string, _schoolName: string) => {
@@ -57,6 +59,7 @@ export default function AccountForm({
       return;
     }
 
+    await updateSession();
     setStatus("Account updated.");
     toast.push("Account updated successfully.", "success");
   };

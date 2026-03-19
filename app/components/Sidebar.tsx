@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import type { Session } from "next-auth";
+import SchoolContextPill from "@/app/components/SchoolContextPill";
 
 const navItems = [
   {
@@ -106,6 +107,7 @@ export default function Sidebar() {
           </span>
         </button>
       </div>
+      {open && <SchoolContextPill />}
       <nav id="sidebar-nav" className="sidebar__nav" aria-label="Primary">
         {navItems.map((item) => (
           <a key={item.label} className="sidebar__link" href={item.href}>

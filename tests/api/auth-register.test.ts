@@ -1,8 +1,5 @@
 jest.mock("@/lib/prisma", () => ({
   prisma: {
-    school: {
-      findUnique: jest.fn()
-    },
     $transaction: jest.fn()
   }
 }));
@@ -10,100 +7,113 @@ jest.mock("@/lib/prisma", () => ({
 import { POST } from "@/app/api/auth/register/route";
 import { prisma } from "@/lib/prisma";
 
-const schoolFindUniqueMock = prisma.school.findUnique as jest.Mock;
 const transactionMock = prisma.$transaction as jest.Mock;
 
 const userCreateMock = jest.fn();
-const userSchoolCreateMock = jest.fn();
 
 const buildRequest = (body: object) =>
   new Request("http://localhost/api/auth/register", {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body)
   });
 
 describe("POST /api/auth/register", () => {
   beforeEach(() => {
-    schoolFindUniqueMock.mockReset();
     transactionMock.mockReset();
     userCreateMock.mockReset();
-    userSchoolCreateMock.mockReset();
 
     transactionMock.mockImplementation(async (cb: (tx: any) => Promise<any>) =>
       cb({
-        user: { create: userCreateMock },
-        userSchool: { create: userSchoolCreateMock }
+        user: { create: userCreateMock }
       })
     );
   });
 
-  it("creates a student school association from first run selection", async () => {
-    schoolFindUniqueMock.mockResolvedValue({ id: "school-1" });
-    userCreateMock.mockResolvedValue({ id: "user-1", email: "student@classrack.dev" });
+  it("creates a student user with no school association", async () => {
+    userCreateMock.mockResolvedValue({ id: "user-1", email: "student@knocore.dev" });
 
     const response = await POST(
       buildRequest({
         name: "Student User",
-        email: "student@classrack.dev",
-        password: "password123",
-        firstRunSelection: {
-          schoolId: "school-1"
-        }
+        email: "student@knocore.dev",
+        password: "password123"
       })
     );
 
     expect(response.status).toBe(200);
-    expect(userSchoolCreateMock).toHaveBeenCalledWith({
-      data: {
-        userId: "user-1",
-        schoolId: "school-1",
-        role: "STUDENT"
-      }
-    });
+    expect(userCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          email: "student@knocore.dev",
+          role: "STUDENT"
+        })
+      })
+    );
   });
 
-  it("creates a professor school association with professor role", async () => {
-    schoolFindUniqueMock.mockResolvedValue({ id: "school-2" });
-    userCreateMock.mockResolvedValue({ id: "prof-1", email: "prof@classrack.dev" });
+  it("creates a professor user with professor profile", async () => {
+    userCreateMock.mockResolvedValue({ id: "prof-1", email: "prof@knocore.dev" });
 
     const response = await POST(
       buildRequest({
         name: "Professor User",
-        email: "prof@classrack.dev",
+        email: "prof@knocore.dev",
         password: "password123",
-        role: "PROFESSOR",
-        firstRunSelection: {
-          schoolId: "school-2"
-        }
+        role: "PROFESSOR"
       })
     );
 
     expect(response.status).toBe(200);
-    expect(userSchoolCreateMock).toHaveBeenCalledWith({
-      data: {
-        userId: "prof-1",
-        schoolId: "school-2",
-        role: "PROFESSOR"
-      }
-    });
+    expect(userCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          role: "PROFESSOR",
+          professorProfile: { create: { isClaimed: false } }
+        })
+      })
+    );
   });
 
-  it("does not create school association when selected school is invalid", async () => {
-    schoolFindUniqueMock.mockResolvedValue(null);
-    userCreateMock.mockResolvedValue({ id: "user-2", email: "noschool@classrack.dev" });
-
+  it("returns 400 when email is missing", async () => {
     const response = await POST(
       buildRequest({
-        name: "No School",
-        email: "noschool@classrack.dev",
-        password: "password123",
-        firstRunSelection: {
-          schoolId: "missing-school"
-        }
+        name: "Test",
+        password: "password123"
       })
     );
 
-    expect(response.status).toBe(200);
-    expect(userSchoolCreateMock).not.toHaveBeenCalled();
+    expect(response.status).toBe(400);
+  });
+
+  it("returns 400 when password is too short", async () => {
+    const response = await POST(
+      buildRequest({
+        email: "test@knocore.dev",
+        password: "short"
+      })
+    );
+
+    expect(response.status).toBe(400);
+  });
+
+  it("defaults to STUDENT role when role is not specified", async () => {
+    userCreateMock.mockResolvedValue({ id: "user-2", email: "default@knocore.dev" });
+
+    await POST(
+      buildRequest({
+        name: "Default Role",
+        email: "default@knocore.dev",
+        password: "password123"
+      })
+    );
+
+    expect(userCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          role: "STUDENT"
+        })
+      })
+    );
   });
 });
