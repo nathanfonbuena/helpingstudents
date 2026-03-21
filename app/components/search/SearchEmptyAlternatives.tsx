@@ -31,7 +31,7 @@ export default function SearchEmptyAlternatives({
             <Link
               key={school.id}
               className="search-empty-chip"
-              href={`/search?q=${encodeURIComponent(school.name)}`}
+              href={`/?q=${encodeURIComponent(school.name)}`}
               onClick={() =>
                 trackEvent("search_empty_alternative_click", {
                   type: "similar_school",
@@ -48,7 +48,7 @@ export default function SearchEmptyAlternatives({
               <Link
                 key={professor.id}
                 className="search-empty-chip"
-                href={`/search?q=${encodeURIComponent(name)}`}
+                href={`/?q=${encodeURIComponent(name)}`}
                 onClick={() =>
                   trackEvent("search_empty_alternative_click", {
                     type: "similar_professor",

@@ -180,11 +180,11 @@ export default function FindProfessorsModal({
             className="primary-button"
             href={
               schoolId || query
-                ? `/search?${new URLSearchParams({
+                ? `/?${new URLSearchParams({
                   ...(schoolId ? { schoolId } : {}),
                   ...(query ? { q: query } : {})
                 }).toString()}`
-                : "/search"
+                : "/"
             }
             onClick={onClose}
           >

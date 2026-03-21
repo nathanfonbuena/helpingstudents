@@ -88,6 +88,14 @@ export async function GET(request: Request) {
             }
           },
           take: 1
+        },
+        departments: {
+          select: { department: { select: { name: true } } },
+          take: 1
+        },
+        _count: { select: { reviewsReceived: true } },
+        reviewsReceived: {
+          select: { rating: true }
         }
       },
       take: 5,
@@ -120,7 +128,14 @@ export async function GET(request: Request) {
     id: professor.id,
     name: professor.name,
     slug: professor.slug,
-    schoolName: professor.schools[0]?.school.name ?? null
+    schoolName: professor.schools[0]?.school.name ?? null,
+    departmentName: professor.departments[0]?.department.name ?? null,
+    reviewCount: professor._count.reviewsReceived,
+    averageRating:
+      professor.reviewsReceived.length > 0
+        ? professor.reviewsReceived.reduce((sum, r) => sum + r.rating, 0) /
+          professor.reviewsReceived.length
+        : null
   }));
 
   // Format location string for schools

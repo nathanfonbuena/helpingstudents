@@ -243,7 +243,7 @@ export default async function AccountPage() {
     : null;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const topUploadUrl = topUploadLabel
-    ? `${siteUrl}/search?q=${encodeURIComponent(topUploadLabel)}`
+    ? `${siteUrl}/?q=${encodeURIComponent(topUploadLabel)}`
     : siteUrl;
 
   const savedProfessorList = follows
@@ -441,7 +441,7 @@ export default async function AccountPage() {
         : "a tracked course";
       const destination = professorSlug
         ? `/professor/${professorSlug}#materials`
-        : `/search?q=${encodeURIComponent(material.title)}`;
+        : `/?q=${encodeURIComponent(material.title)}`;
       return {
         id: `material-${material.id}`,
         type: "new_material" as const,

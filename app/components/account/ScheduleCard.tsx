@@ -65,7 +65,7 @@ export default function ScheduleCard({
                 <div className="schedule-actions">
                   <Link
                     className="ghost-button button--sm"
-                    href={`/search?q=${encodeURIComponent(entry.course.courseNumber)}`}
+                    href={`/?q=${encodeURIComponent(entry.course.courseNumber)}`}
                   >
                     View course
                   </Link>

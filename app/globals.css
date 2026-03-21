@@ -785,7 +785,15 @@ a {
   color: var(--ink-500);
 }
 
-.search__suggestion:hover {
+.search__suggestion-rating {
+  font-weight: 600;
+  color: var(--accent);
+  margin-left: 6px;
+  font-size: 0.85rem;
+}
+
+.search__suggestion:hover,
+.search__suggestion--active {
   background: var(--accent-soft);
   color: var(--accent);
 }
@@ -1053,6 +1061,35 @@ a {
 .result-card--professor > a {
   display: grid;
   gap: 6px;
+}
+
+.result-card__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.result-card__rating {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.result-card__school {
+  font-size: 0.85rem;
+  color: var(--ink-500);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.result-card__review-count {
+  font-size: 0.82rem;
+  color: var(--ink-500);
+  margin: 0;
 }
 
 .result-card__compare {
@@ -2350,11 +2387,25 @@ a {
   border: 1px solid var(--panel-border);
   background: #fff;
   color: var(--ink-700);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
 }
 
 .school-search__item:hover {
   background: var(--accent-soft);
   color: var(--accent);
+}
+
+.school-search__name {
+  font-weight: 500;
+}
+
+.school-search__meta {
+  font-size: 0.82rem;
+  color: var(--ink-500);
+  white-space: nowrap;
 }
 
 .modal-overlay {
@@ -5618,93 +5669,20 @@ button.sidebar__action {
   border-color: rgba(123, 145, 182, 0.35);
 }
 
-.search-bento {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.search-bento__card {
-  border-radius: 18px;
-  border: 1px solid rgba(126, 148, 183, 0.35);
-  background: linear-gradient(155deg, rgba(12, 21, 36, 0.85) 0%, rgba(10, 16, 31, 0.78) 100%);
-  padding: 14px;
-  color: #e9f0ff;
-  box-shadow: 0 16px 36px rgba(3, 7, 14, 0.4);
-}
-
-.search-bento__card--lead {
-  grid-column: span 2;
-}
-
-.search-bento__kicker {
-  margin: 0 0 6px;
-  font-size: 0.72rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #7df3cd;
-  font-weight: 700;
-}
-
-.search-bento__card h2,
-.search-bento__card h3 {
-  margin: 0 0 6px;
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  color: #f2f7ff;
-}
-
-.search-bento__card p {
-  margin: 0;
-  color: #c0cde2;
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-}
-
-.search-bento__meta {
-  font-size: 0.86rem;
-}
-
-.search-bento__card dl {
-  margin: 0;
-  display: grid;
-  gap: 7px;
-}
-
-.search-bento__card dl div {
-  border: 1px solid rgba(126, 148, 183, 0.35);
-  border-radius: 12px;
-  background: rgba(10, 20, 37, 0.62);
-  padding: 8px 9px;
-}
-
-.search-bento__card dt {
-  margin: 0;
-  font-size: 0.72rem;
-  color: #88a9d9;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.search-bento__card dd {
-  margin: 2px 0 0;
-  font-size: 1rem;
-  color: #f1f6ff;
-  font-weight: 700;
-}
-
-.search-bento__chips {
-  margin-top: 8px;
+.search-results-summary {
   display: flex;
   flex-wrap: wrap;
-  gap: 7px;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--ink-500);
+  padding: 0 4px;
 }
 
-.search-bento__chips span {
+.search-results-summary span {
+  padding: 4px 10px;
   border-radius: 999px;
-  padding: 4px 8px;
-  font-size: 0.72rem;
-  color: #dcf4ff;
-  border: 1px solid rgba(126, 148, 183, 0.38);
-  background: rgba(12, 26, 48, 0.66);
+  border: 1px solid var(--panel-border);
+  background: var(--panel);
 }
 
 .home--cyber-calm {
@@ -6094,13 +6072,6 @@ button.sidebar__action {
     border-radius: 0;
   }
 
-  .search-bento {
-    grid-template-columns: 1fr;
-  }
-
-  .search-bento__card--lead {
-    grid-column: span 1;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -144,7 +144,7 @@ export default function SchoolContextPill() {
   return (
     <div className="sidebar__school-pill">
       <a
-        href={`/search?schoolId=${encodeURIComponent(schoolId)}`}
+        href={`/?schoolId=${encodeURIComponent(schoolId)}`}
         className="sidebar__school-pill-name"
       >
         {schoolName}

@@ -60,7 +60,7 @@ export default function ReviewForm({ professors }: ReviewFormProps) {
 
     const payload = (await response.json()) as { professorSlug?: string };
     setStatus("Review submitted.");
-    router.push(payload.professorSlug ? `/professor/${payload.professorSlug}` : "/search");
+    router.push(payload.professorSlug ? `/professor/${payload.professorSlug}` : "/");
   };
 
   return (

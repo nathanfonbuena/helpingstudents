@@ -19,7 +19,7 @@ export default async function AboutPage() {
             change the game.
           </p>
           <div className="home__actions">
-            <a className="primary-button" href="/search">
+            <a className="primary-button" href="/">
               Search professors and courses
             </a>
             {!isLoggedIn && (
@@ -141,7 +141,7 @@ export default async function AboutPage() {
                   Create your profile
                 </a>
               )}
-              <a className="ghost-button" href="/search">
+              <a className="ghost-button" href="/">
                 Browse the library
               </a>
             </div>

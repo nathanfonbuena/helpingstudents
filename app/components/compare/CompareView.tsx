@@ -223,7 +223,7 @@ export default function CompareView() {
       {items.length === 0 && (
         <div className="compare-empty">
           <p>Choose at least 2 professors to start a comparison.</p>
-          <Link className="btn btn--primary btn--sm" href="/search">
+          <Link className="btn btn--primary btn--sm" href="/">
             Browse professors
           </Link>
         </div>

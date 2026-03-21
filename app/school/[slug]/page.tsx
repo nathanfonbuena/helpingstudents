@@ -98,6 +98,19 @@ export default async function SchoolPage({
     orderBy: { name: "asc" }
   });
 
+  const professorsWithRatings = professors.map((professor) => {
+    const ratings = professor.reviewsReceived.map((r) => r.rating);
+    return {
+      id: professor.id,
+      name: professor.name,
+      slug: professor.slug,
+      averageRating: ratings.length
+        ? ratings.reduce((sum, v) => sum + v, 0) / ratings.length
+        : null,
+      reviewCount: ratings.length
+    };
+  });
+
   const reviewCount = school.reviews.length;
   const overallAverage = average(school.reviews.map((review) => review.overall));
 
@@ -137,7 +150,7 @@ export default async function SchoolPage({
                 <h2>Find a professor</h2>
                 <p>Search within this school.</p>
               </div>
-              <SchoolProfessorSearch professors={professors} />
+              <SchoolProfessorSearch professors={professorsWithRatings} />
             </section>
             <section className="results-block">
               <div className="section-header">

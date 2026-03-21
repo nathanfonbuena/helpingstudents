@@ -12,6 +12,9 @@ interface Suggestion {
   type: "school" | "professor" | "course";
   schoolName?: string | null;
   courseNumber?: string | null;
+  departmentName?: string | null;
+  reviewCount?: number;
+  averageRating?: number | null;
 }
 
 interface SearchBoxProps {
@@ -28,7 +31,7 @@ interface SearchBoxProps {
 
 export default function SearchBox({
   initialQuery = "",
-  action = "/search",
+  action = "/",
   directProfessorNavigation = false,
   submitLabel,
   filters
@@ -43,6 +46,7 @@ export default function SearchBox({
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const storageKey = useMemo(
     () => `recent-searches:v1:${userId ?? "guest"}`,
     [userId]
@@ -136,6 +140,7 @@ export default function SearchBox({
           )
         ];
         setSuggestions(nextSuggestions);
+        setActiveIndex(-1);
         setOpen(true);
       } catch (error) {
         console.error(error);
@@ -202,6 +207,33 @@ export default function SearchBox({
     submitQuery(item.name);
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!open || suggestions.length === 0) return;
+
+    switch (event.key) {
+      case "ArrowDown":
+        event.preventDefault();
+        setActiveIndex((prev) => Math.min(prev + 1, suggestions.length - 1));
+        break;
+      case "ArrowUp":
+        event.preventDefault();
+        setActiveIndex((prev) => Math.max(prev - 1, -1));
+        break;
+      case "Enter":
+        if (activeIndex >= 0) {
+          event.preventDefault();
+          handleSuggestionClick(suggestions[activeIndex]);
+          setOpen(false);
+          setActiveIndex(-1);
+        }
+        break;
+      case "Escape":
+        setOpen(false);
+        setActiveIndex(-1);
+        break;
+    }
+  };
+
   return (
     <form
       className="home__search"
@@ -232,8 +264,14 @@ export default function SearchBox({
           name="q"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder="Search by school or professor"
           aria-label="Search by school or professor"
+          aria-activedescendant={
+            activeIndex >= 0 && suggestions[activeIndex]
+              ? `suggestion-${suggestions[activeIndex].type}-${suggestions[activeIndex].id}`
+              : undefined
+          }
           autoComplete="off"
           onFocus={() => {
             if (suggestions.length > 0 || recentSearches.length > 0 || query.trim().length >= 2) {
@@ -257,18 +295,32 @@ export default function SearchBox({
         <div className="search__suggestions" role="listbox">
           {loading && <div className="search__suggestion">Loading…</div>}
           {!loading &&
-            suggestions.map((item) => (
+            suggestions.map((item, index) => (
               <button
                 key={`${item.type}-${item.id}`}
-                className="search__suggestion"
+                id={`suggestion-${item.type}-${item.id}`}
+                className={`search__suggestion${index === activeIndex ? " search__suggestion--active" : ""}`}
                 type="button"
+                role="option"
+                aria-selected={index === activeIndex}
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={() => handleSuggestionClick(item)}
+                onMouseEnter={() => setActiveIndex(index)}
               >
                 <span className="search__suggestion-main">
-                  <span className="search__suggestion-title">{item.name}</span>
-                  {item.type === "professor" && item.schoolName && (
-                    <span className="search__suggestion-subtitle">{item.schoolName}</span>
+                  <span className="search__suggestion-title">
+                    {item.name}
+                    {item.type === "professor" && item.averageRating != null && (
+                      <span className="search__suggestion-rating">★ {item.averageRating.toFixed(1)}</span>
+                    )}
+                  </span>
+                  {item.type === "professor" && (
+                    <span className="search__suggestion-subtitle">
+                      {[item.departmentName, item.schoolName].filter(Boolean).join(" · ")}
+                      {item.reviewCount != null && item.reviewCount > 0 && (
+                        <> · {item.reviewCount} review{item.reviewCount === 1 ? "" : "s"}</>
+                      )}
+                    </span>
                   )}
                   {item.type === "course" && item.schoolName && (
                     <span className="search__suggestion-subtitle">{item.schoolName}</span>

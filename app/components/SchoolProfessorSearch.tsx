@@ -5,7 +5,13 @@ import Link from "next/link";
 import { slugify } from "@/app/lib/slug";
 
 interface SchoolProfessorSearchProps {
-  professors: { id: string; name: string | null; slug?: string | null }[];
+  professors: {
+    id: string;
+    name: string | null;
+    slug?: string | null;
+    averageRating?: number | null;
+    reviewCount?: number;
+  }[];
 }
 
 export default function SchoolProfessorSearch({ professors }: SchoolProfessorSearchProps) {
@@ -45,7 +51,15 @@ export default function SchoolProfessorSearch({ professors }: SchoolProfessorSea
               className="school-search__item"
               href={`/professor/${professor.slug ?? slugify(professor.name ?? "")}`}
             >
-              {professor.name ?? "Unnamed professor"}
+              <span className="school-search__name">{professor.name ?? "Unnamed professor"}</span>
+              <span className="school-search__meta">
+                {professor.averageRating != null
+                  ? `★ ${professor.averageRating.toFixed(1)}`
+                  : "No rating"}
+                {professor.reviewCount != null && professor.reviewCount > 0 && (
+                  <> · {professor.reviewCount} review{professor.reviewCount === 1 ? "" : "s"}</>
+                )}
+              </span>
             </Link>
           ))}
         </div>

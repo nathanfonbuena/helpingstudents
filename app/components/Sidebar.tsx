@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import type { Session } from "next-auth";
+import Link from "next/link";
 import SchoolContextPill from "@/app/components/SchoolContextPill";
 
 const navItems = [
@@ -110,28 +111,28 @@ export default function Sidebar() {
       {open && <SchoolContextPill />}
       <nav id="sidebar-nav" className="sidebar__nav" aria-label="Primary">
         {navItems.map((item) => (
-          <a key={item.label} className="sidebar__link" href={item.href}>
+          <Link key={item.label} className="sidebar__link" href={item.href}>
             <span className="sidebar__link-icon" aria-hidden="true">
               {item.icon}
             </span>
             <span className="sidebar__link-text">{item.label}</span>
-          </a>
+          </Link>
         ))}
       </nav>
       <div className="sidebar__footer">
         {isAuthed ? (
           <>
             {isProfessor && (
-              <a className="sidebar__action sidebar__action--ghost" href="/professor-portal">
+              <Link className="sidebar__action sidebar__action--ghost" href="/professor-portal">
                 Professor Portal
-              </a>
+              </Link>
             )}
-            <a className="sidebar__action" href="/dashboard">
+            <Link className="sidebar__action" href="/dashboard">
               Dashboard
-            </a>
-            <a className="sidebar__action sidebar__action--ghost" href="/settings">
+            </Link>
+            <Link className="sidebar__action sidebar__action--ghost" href="/settings">
               Settings
-            </a>
+            </Link>
             <button
               type="button"
               className="sidebar__action sidebar__action--ghost sidebar__action--logout"
@@ -142,15 +143,15 @@ export default function Sidebar() {
           </>
         ) : (
           <>
-            <a className="sidebar__action" href="/signup">
+            <Link className="sidebar__action" href="/signup">
               Sign up
-            </a>
-            <a className="sidebar__action sidebar__action--ghost" href="/login">
+            </Link>
+            <Link className="sidebar__action sidebar__action--ghost" href="/login">
               Log in
-            </a>
-            <a className="sidebar__action sidebar__action--ghost" href="/signup/professor">
+            </Link>
+            <Link className="sidebar__action sidebar__action--ghost" href="/signup/professor">
               Faculty sign up
-            </a>
+            </Link>
           </>
         )}
       </div>
@@ -161,12 +162,12 @@ export default function Sidebar() {
               ? pathname === "/"
               : pathname === item.href || pathname.startsWith(`${item.href}/`);
           return (
-            <a key={`mobile-${item.label}`} className={isActive ? "sidebar__bottom-link is-active" : "sidebar__bottom-link"} href={item.href}>
+            <Link key={`mobile-${item.label}`} className={isActive ? "sidebar__bottom-link is-active" : "sidebar__bottom-link"} href={item.href}>
               <span className="sidebar__bottom-icon" aria-hidden="true">
                 {item.icon}
               </span>
               <span className="sidebar__bottom-text">{item.label}</span>
-            </a>
+            </Link>
           );
         })}
       </nav>
