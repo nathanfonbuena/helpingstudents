@@ -140,7 +140,7 @@ export default function CompareView() {
                   <h2>
                     <Link href={`/professor/${slot.slug}`}>{slot.name}</Link>
                   </h2>
-                  <p>Selected</p>
+                  <p>{professors.find((p) => p.id === slot.id)?.schoolName ?? "Selected"}</p>
                 </div>
                 <button
                   type="button"

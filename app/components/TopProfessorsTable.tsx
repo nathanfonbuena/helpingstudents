@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { slugify } from "@/app/lib/slug";
+import CompareToggleButton from "@/app/components/compare/CompareToggleButton";
 
 interface TopProfessorItem {
   id: string;
@@ -26,6 +27,7 @@ export default function TopProfessorsTable({
         <span className="ranking-cell ranking-cell--school">School</span>
         <span className="ranking-cell ranking-cell--score">Score</span>
         <span className="ranking-cell ranking-cell--reviews">Reviews</span>
+        <span className="ranking-cell ranking-cell--compare" />
       </div>
       {items.length === 0 && <div className="ranking-empty">No reviews yet.</div>}
       {items.map((item) => (
@@ -59,6 +61,17 @@ export default function TopProfessorsTable({
           </span>
           <span className="ranking-cell ranking-cell--reviews" data-label="Reviews">
             {item.reviewCount}
+          </span>
+          <span className="ranking-cell ranking-cell--compare">
+            {item.name && (
+              <CompareToggleButton
+                professorId={item.id}
+                professorName={item.name}
+                professorSlug={item.slug ?? slugify(item.name)}
+                source="rankings"
+                className="btn btn--ghost btn--sm"
+              />
+            )}
           </span>
         </div>
       ))}

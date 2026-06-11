@@ -2815,7 +2815,7 @@ a {
 
 .ranking-row {
   display: grid;
-  grid-template-columns: 70px minmax(0, 1.4fr) minmax(0, 1fr) 110px 90px;
+  grid-template-columns: 70px minmax(0, 1.4fr) minmax(0, 1fr) 110px 90px 110px;
   gap: 12px;
   align-items: center;
   padding: 12px 14px;
@@ -3217,9 +3217,48 @@ a {
   gap: 10px;
 }
 
+.compare-tray--collapsed {
+  display: flex;
+  align-items: center;
+  width: auto;
+  padding: 8px 16px;
+  border-radius: 999px;
+  gap: 0;
+}
+
+.compare-tray__expand-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background: transparent;
+  color: #f2f6f3;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.compare-tray__expand-btn:hover {
+  color: #86ffe0;
+}
+
+.compare-tray__chevron {
+  font-size: 0.7rem;
+  opacity: 0.7;
+}
+
 .compare-tray__header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.compare-tray__controls {
+  display: flex;
   align-items: center;
   gap: 10px;
 }
@@ -3231,6 +3270,20 @@ a {
   font-size: 0.82rem;
   text-decoration: underline;
   cursor: pointer;
+}
+
+.compare-tray__minimize {
+  border: 0;
+  background: transparent;
+  color: #d8e6dd;
+  font-size: 0.9rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+}
+
+.compare-tray__minimize:hover {
+  color: #f2f6f3;
 }
 
 .compare-tray__items {
@@ -3316,7 +3369,7 @@ a {
 
 @media (max-width: 900px) {
   .ranking-row {
-    grid-template-columns: 60px minmax(0, 1.2fr) minmax(0, 1fr) 90px 70px;
+    grid-template-columns: 60px minmax(0, 1.2fr) minmax(0, 1fr) 90px 70px 90px;
   }
 
   .ranking-row--schools {
@@ -3420,6 +3473,14 @@ a {
     color: var(--ink-700);
   }
 
+  .ranking-row--professor .ranking-cell--compare {
+    justify-content: flex-end;
+  }
+
+  .ranking-row--professor .ranking-cell--compare::before {
+    display: none;
+  }
+
   .ranking-row--school {
     gap: 10px;
     padding: 14px 12px;
@@ -3495,9 +3556,15 @@ a {
 
   .compare-tray {
     width: calc(100% - 12px);
-    bottom: 6px;
     border-radius: 12px;
     padding: 10px;
+  }
+
+  /* Collapsed pill: auto-width so it doesn't stretch edge-to-edge */
+  .compare-tray--collapsed {
+    width: auto;
+    border-radius: 999px;
+    padding: 8px 16px;
   }
 
   .compare-tray__view {
@@ -6172,6 +6239,15 @@ button.sidebar__action {
 @media (max-width: 900px) {
   body {
     padding-bottom: 82px;
+  }
+
+  /* Raise the compare tray (both expanded and collapsed) above the fixed bottom nav bar (~78px tall) */
+  .compare-tray {
+    bottom: calc(86px + env(safe-area-inset-bottom));
+  }
+
+  .compare-tray--collapsed {
+    bottom: calc(86px + env(safe-area-inset-bottom));
   }
 
   .sidebar {

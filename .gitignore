@@ -6,3 +6,11 @@ node_modules
 .claude
 .claude_dev_active
 claude-dev
+.gstack/
+
+# TypeScript incremental build cache
+*.tsbuildinfo
+
+# Playwright
+/test-results/
+/playwright-report/
