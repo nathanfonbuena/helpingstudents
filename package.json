@@ -15,7 +15,8 @@
     "prisma:studio": "prisma studio",
     "import:schools": "npx ts-node scripts/import/schools/index.ts",
     "import:courses": "npx ts-node scripts/import/courses/index.ts",
-    "import:courses:school": "npx ts-node scripts/import/courses/index.ts --school"
+    "import:courses:school": "npx ts-node scripts/import/courses/index.ts --school",
+    "admin:backfill": "npx ts-node scripts/admin/backfill-admins.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "2.5.3",

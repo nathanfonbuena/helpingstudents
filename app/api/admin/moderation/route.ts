@@ -2,22 +2,21 @@
  * GET /api/admin/moderation
  *
  * Returns all professor replies that are pending moderation.
- * Access is restricted to admin users (for now: any user whose email is in
- * the ADMIN_EMAILS env variable, comma-separated).
+ * Access is restricted to admin users (User.isAdmin).
  */
 
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-
-function isAdmin(email: string): boolean {
-  const adminEmails = (process.env.ADMIN_EMAILS ?? "").split(",").map((e) => e.trim().toLowerCase());
-  return adminEmails.includes(email.toLowerCase());
-}
+import { isAdmin } from "@/lib/admin";
 
 export async function GET(request: Request) {
   const session = await auth();
-  if (!session?.user?.email || !isAdmin(session.user.email)) {
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (!(await isAdmin(session.user.id))) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

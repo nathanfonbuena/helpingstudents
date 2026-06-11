@@ -5160,6 +5160,84 @@ a {
   background: #fdf0ef;
 }
 
+/* ─── Admin: shared sub-nav ───────────────────────────────────────────────── */
+
+.admin-nav {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.admin-nav a {
+  color: var(--ink-500);
+  text-decoration: none;
+}
+
+.admin-nav a:hover {
+  color: var(--accent);
+}
+
+/* ─── Admin: User Management ─────────────────────────────────────────────── */
+
+.admin-users-panel {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.admin-users-search {
+  display: flex;
+  gap: 10px;
+}
+
+.admin-users-search .form-input {
+  flex: 1;
+}
+
+.admin-users-section h2 {
+  font-size: 1.05rem;
+  color: var(--ink-900);
+  margin: 0 0 12px;
+}
+
+.admin-users-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-users-row {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.admin-users-row__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.admin-users-row__email,
+.admin-users-row__role {
+  font-size: 0.8rem;
+  color: var(--ink-500);
+}
+
+.admin-users-row__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 /* ─── Professor page: course metadata tags ───────────────────────────────── */
 
 .course-tags {
@@ -5444,9 +5522,19 @@ button.sidebar__action {
   .reviews-card,
   .claim-existing,
   .moderation-item,
+  .admin-users-row,
   .claimed-section {
     border-radius: 16px;
     padding: 16px;
+  }
+
+  .admin-users-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-users-search {
+    flex-direction: column;
   }
 
   .modal-overlay {

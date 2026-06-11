@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
+import { isAdmin } from "@/lib/admin";
 
 function escapeCSV(value: string | number | null | undefined): string {
   if (value === null || value === undefined) {
@@ -18,6 +19,12 @@ export async function GET(request: Request) {
   const session = await auth();
   if (!session?.user?.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Restrict to configured admins - this endpoint dumps full course,
+  // department, and professor data for any school.
+  if (!(await isAdmin(session.user.id))) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const { searchParams } = new URL(request.url);

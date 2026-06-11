@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
+import { isAdmin } from "@/lib/admin";
 
 interface CourseImportRow {
   courseNumber: string;
@@ -124,11 +125,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // For now, allow any authenticated user - in production, add admin check
-  // const isAdmin = await checkAdminRole(session.user.email);
-  // if (!isAdmin) {
-  //   return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  // }
+  // Restrict to configured admins - this endpoint creates/updates courses,
+  // departments, and professor records for any school.
+  if (!(await isAdmin(session.user.id))) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   const formData = await request.formData();
   const schoolId = formData.get("schoolId") as string;

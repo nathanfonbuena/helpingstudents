@@ -798,6 +798,23 @@ async function main() {
   await prisma.session.createMany({ data: sessionData });
   await prisma.verificationToken.createMany({ data: verificationTokenData });
 
+  // ── Admin seed user ──────────────────────────────────────────────────────────
+  // Dedicated account for exercising /admin/* routes locally
+  // (admin@classrack.dev / password123).
+  await prisma.user.upsert({
+    where: { email: "admin@classrack.dev" },
+    update: { isAdmin: true },
+    create: {
+      email: "admin@classrack.dev",
+      name: "Admin User",
+      passwordHash,
+      theme: "LIGHT",
+      role: "STUDENT",
+      verified: true,
+      isAdmin: true
+    }
+  });
+
   console.log(`✅ Seed complete.`);
   console.log(`   ${professorRecords.length} professors`);
   console.log(`   ${studentRecords.length} students (${eduStudents.length} .edu / ${comStudents.length} .com)`);
@@ -806,6 +823,7 @@ async function main() {
   console.log(`   ${professorProfileData.length} professor profiles`);
   console.log(`   ${reviewSummaryData.length} AI review summaries (pre-seeded)`);
   console.log(`   ${courseMetadataData.length} course metadata records`);
+  console.log(`   1 admin user (admin@classrack.dev / password123)`);
 }
 
 main()

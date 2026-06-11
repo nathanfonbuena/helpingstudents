@@ -1,30 +1,32 @@
+name: classrack-999550-model-a
+
 services:
-  model-b-db:
+  model-a-db:
     image: postgres:16
     environment:
       POSTGRES_USER: classrack
       POSTGRES_PASSWORD: classrack
       POSTGRES_DB: classrack
     ports:
-      - "5434:5432"
+      - "5440:5432"
     volumes:
-      - model-b-pgdata:/var/lib/postgresql/data
+      - model-a-pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U classrack"]
       interval: 5s
       timeout: 5s
       retries: 10
 
-  model-b-web:
+  model-a-web:
     build: .
     ports:
-      - "3738:3000"
-      - "5557:5555"
+      - "3741:3000"
+      - "5561:5555"
     environment:
-      DATABASE_URL: postgresql://classrack:classrack@model-b-db:5432/classrack
-      AUTH_URL: http://localhost:3738
-      NEXTAUTH_URL: http://localhost:3738
-      NEXT_PUBLIC_SITE_URL: http://localhost:3738
+      DATABASE_URL: postgresql://classrack:classrack@model-a-db:5432/classrack
+      AUTH_URL: http://localhost:3741
+      NEXTAUTH_URL: http://localhost:3741
+      NEXT_PUBLIC_SITE_URL: http://localhost:3741
       AUTH_SECRET: ${AUTH_SECRET}
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
@@ -32,14 +34,13 @@ services:
       EMAIL_FROM: ${EMAIL_FROM}
       UPLOADTHING_TOKEN: ${UPLOADTHING_TOKEN}
       CRON_SECRET: ${CRON_SECRET}
-      ADMIN_EMAILS: ${ADMIN_EMAILS}
     volumes:
       - .:/app
       - /app/node_modules
     depends_on:
-      model-b-db:
+      model-a-db:
         condition: service_healthy
     command: sh -c "npx prisma migrate deploy && npx prisma db seed && npx prisma studio --port 5555 --hostname 0.0.0.0 & npm run dev -- --hostname 0.0.0.0"
 
 volumes:
-  model-b-pgdata:
+  model-a-pgdata:
